@@ -1,0 +1,46 @@
+Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
+ workflow.rb
+ workflow.md
+ lib=lib {
+  sinatra.rb
+  link.rb
+  cytoscape.rb
+ }
+ www=www {
+  views=views {
+   compass=compass{
+    cytoscape.sass
+   }
+   public=public{
+    js=js{
+     cytoscape=cytoscape{
+      src=src{
+       AC_OETags.js
+       cytoscapeweb.js
+       json2.js
+      }
+     }
+     controls=controls{
+      save.js
+      context_menu.js
+      placement.js
+     }
+     cytoscape.js
+    }
+   }
+   tools=tools{
+    cytoscape.haml
+   }
+   entity_list=entity_list{
+    Gene.haml
+    Gene=Gene{
+     sample_gene_network.haml
+     study_gene_network.haml
+    }
+   }
+   network_partials=network_partials{
+    sample_gene_network.haml
+   }
+  }
+ }
+}

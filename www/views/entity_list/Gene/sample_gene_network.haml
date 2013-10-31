@@ -1,0 +1,51 @@
+- studies = user_studies[user];
+
+- action_card = ActionCard.new do
+  - input :study, :select, "Study", nil, :select_options => studies
+ 
+- action_card.require :study
+= action_card_render action_card do
+  - Study.setup(study)
+
+  - dir = @step.file('knowledge_base')
+  - kb = KnowledgeBase.new dir
+  - kb.info["All"] = {:organism => "Hsa/jan2013", :study => study}
+
+  - g = Graph.new([$knowledge_base, kb])
+  - g.entities["Gene"] = []
+  - g.entities["Sample"] = []
+
+  - if study.has_genotypes?
+    - s2g = study.samples_with_gene_affected
+    - s2g = TSV.setup(s2g, :key_field => "Ensembl Gene ID", :fields => ["Sample"], :type => :flat)
+    - kb.register("mutations", s2g, {})
+    - g.databases << 'mutations'
+
+    - g.entities["Gene"] += s2g.keys
+    - g.entities["Sample"] += s2g.values.flatten.compact.uniq
+    - gene_score = Hash[*s2g.keys.zip(s2g.values.collect{|l| l.length}).flatten]
+
+  - if study.has_cnv?
+    - s2g = study.samples_with_gene_lost
+    - s2g = TSV.setup(s2g, :key_field => "Ensembl Gene ID", :fields => ["Sample"], :type => :flat)
+    - kb.register("lost", s2g, {})
+    - g.databases << 'lost'
+    - g.entities["Gene"] += s2g.keys
+    - g.entities["Sample"] += s2g.values.flatten.compact.uniq
+
+    - s2g = study.samples_with_gene_gained
+    - s2g = TSV.setup(s2g, :key_field => "Ensembl Gene ID", :fields => ["Sample"], :type => :flat)
+    - kb.register("gained", s2g, {})
+    - g.databases << 'gained'
+    - g.entities["Gene"] += s2g.keys
+    - g.entities["Sample"] += s2g.values.flatten.compact.uniq
+
+  - g.entities["Gene"] = list
+  - g.entities["Sample"].uniq!
+ 
+  - g.add_aesthetic :nodes, :shape, :entity_type, {"Sample" => "SQUARE"}
+  - g.add_aesthetic :edges, :color, :database, :lost => '#0f0', :gained => '#00f'
+  - g.add_aesthetic :nodes, :borderWidth, :id, gene_score
+
+  = tool :cytoscape, :graph => g, :id => "Gene sample network #{ study }", :static => false, :knowledgebase => dir
+ 

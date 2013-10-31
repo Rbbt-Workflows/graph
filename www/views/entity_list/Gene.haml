@@ -1,0 +1,16 @@
+- entity_list_card = EntityListCard.new list, list_id
+
+- entity_list_card.action_controller = default_action_controller list, list_id
+
+- entity_list_card.description do
+
+  - if list.length < 1_200
+    - c = Cytoscape.new user_kb(user), list.organism
+    -# c = Cytoscape.new $knowledge_base, list.organism
+    - c.add_entities  list.ensembl.compact
+    = tool :cytoscape, :cytoscape => c, :id => Misc.snake_case(list_id)
+
+
+= entity_list_card_render entity_list_card
+
+

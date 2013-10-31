@@ -1,0 +1,298 @@
+- id = (rand * 1000).to_i unless defined? id and not (id.nil? or id.empty?)
+- id = Misc.snake_case(id)
+- static = false unless defined? static and not static.nil?
+- knowledge_base = nil unless defined? knowledge_base and not knowledge_base.nil?
+
+= link_css '/stylesheets/cytoscape'
+
+- syndications = {}
+- databases = []
+- cytoscape.knowledge_base.all_databases.each do |database|
+  - name, synd = database.split("@")
+  - if synd
+    - syndications[synd] ||= []
+    - syndications[synd] << database
+  - else
+    - databases << database
+
+.cytoscape_tool(id=id)
+
+  %dl.rbbt_menu
+    - if not static
+
+      %dt.next Edges
+      %dd.content
+        .database_edges
+
+          %h5 Add edges between entities
+          -#= action_parameters nil, {:klass => ''}, :action => '#' do
+            -# input :database, :multiple, "Association database", nil, :choices => cytoscape.knowledge_base.all_databases
+          .action_parameters
+            %form.action_parameter_form
+              - if databases.any?
+                .input.multiple.database
+                  - databases.each do |database|
+                    - name, *rest = database.split "@"
+                    %span.choice
+                      %label(for="database[#{database}]")=name
+                      %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
+              %dl.rbbt_tabs.subtle(style="margin:1em")
+                - syndications.each do |synd, databases|
+                  %dt.next=synd
+                  %dd
+                    .input.database.multiple
+                      - databases.each do |database|
+                        - name, *rest = database.split "@"
+                        %span.choice
+                          %label(for="database[#{database}]")=name
+                          %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
+
+              .input.submit
+                %input(type="submit")
+
+      %dt.next Entities
+      %dd.content
+
+        .add_gene_list
+          %h5 Add entities from a list
+          = action_parameters nil, {:klass => ''}, :action => '#' do
+            - input :entities, :select, "Entities to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
+
+        .database_neighbours
+          %h5 Add neighbours of entities
+          -#= action_parameters nil, {:klass => ''}, :action => '#' do
+            -# input :database, :select, "Association database", nil, :select_options => cytoscape.knowledge_base.all_databases
+          .action_parameters
+            %form
+              .input.select.database
+                %select(type="All" name="database")
+                  - databases.each do |database|
+                    - name, *rest = database.split "@"
+                    %option(value=database)=name
+                  - syndications.each do |synd, databases|
+                    %option(disabled=true)=synd
+                    - databases.each do |database|
+                      - name, *rest = database.split "@"
+                      %option(value=database)=name
+              .input.submit
+                %input(type="submit")
+
+    %dt.next Aesthetics
+    %dd.content
+      .select_gene_list
+        %h5 Highlight entities from a list
+        = action_parameters nil, {:klass => ''}, :action => '#' do
+          - input :entities, :select, "Genes to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
+
+      .maps
+        %h5 Map entity aesthetic
+        = action_parameters nil, {:klass => ''}, :action => '#' do
+          - input :aesthetic, :select, "Aesthetic to map to", :opacity, :select_options => [:shape, :size, :color, :opacity, :borderWidth]
+          - input :field, :string, "Attribute to map", 'id', :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
+          - input :map, :select, "Select map to use", nil, :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
+          - input :map_tsv, :text, "Map", nil, :nofile => true
+
+    %dt.next Help
+    %dd.content
+
+      :markdown
+
+        ### Edges
+        
+        You can connect your nodes using any of the databases in the `knowledgebase`.
+        This is configured in the `Edges` menu: check the databases you want to use, 
+        if none is selected (by default) all of them are used.
+
+        ### Entities
+
+        The network comes preloaded with a list of entities (nodes), but you
+        can remove them or add new ones. To remove them use the context menu
+        (right-click over cytoscape window); you can remove one node, or the
+        selected list of nodes.
+
+        Adding nodes can be done using the `Entity` menu. You can add entities from
+        your `favourite` lists or add the neighbours of your entities using any of
+        the databases in the `knowledgebase`.
+
+        ### Aesthetics
+
+        Use the `Aesthetics` menu to change how your network looks. This can
+        help represent different sources of information. For now it works only
+        on nodes.  You can change the value of different aesthetics, like
+        color, border width, size, shape, and opacity. You can `map` these
+        aesthetics to favourite `Entity Maps`, or use a custom mapping
+        in-place, as a space-separated TSV file (see example below). The
+        mappings can consider the identity of the node (type `id` in `field`;
+        default) or the type of node (type `entity_type` in `field`). For
+        instance:
+
+            aesthetic: color
+            field: entity_type
+            map: use_textarea
+            map_tsv:
+             GOTerm red
+             KeggPathway blue
+             Gene yellow
+             
+         Another example use is to gather the `mutation/protein size` column on
+         the `COSMIC Overview` analysis bellow, and map it to the `opacity`
+         aesthetic of the genes (using the `id` as `field`).
+
+
+
+  .window(id="#{id}_window")
+
+
+  :javascript
+    deffer(function(){
+      require_js('/js/cytoscape', function(){
+        var cytoscape_id = '##{id}';
+
+        console.log("Loading cytoscape: " + cytoscape_id)
+        var tool = $(cytoscape_id).cytoscape_tool({
+          knowledge_base: 'user',
+          namespace: '#{cytoscape.namespace}',
+          entities: #{cytoscape.entities.to_json},
+          network: #{cytoscape.network.to_json},
+
+          node_click: function(event){
+            var target = event.target;
+            for (var i in target.data) {
+              var variable_name = i;
+              var variable_value = target.data[i];
+            }
+            var url = target.data.url;
+
+            $('#modal').modal('show_url', url, undefined, function(){
+              $('#modal').find(' > .header > .title').attr('entity', target.data.id).attr('type', target.data.entity_type)
+            })
+            return(false)
+          },
+
+          edge_click: function(event){
+            var target = event.target;
+            for (var i in target.data){
+              var variable_name = i;
+              var variable_value = target.data[i];
+              console.log( "event.target.data." + variable_name + " = " + variable_value );
+            }
+
+            info = JSON.parse(target.data.info)
+
+            var dl = $('<dl>')
+            for (key in info){
+              var value = info[key]
+              dl.append($('<dt>').html(key))
+              dl.append($('<dd>').html(value))
+            }
+            $('#modal').modal('show', dl)
+ 
+            return(false)
+          }
+
+        });
+
+        require_js('/js/controls/context_menu', function(){
+          cytoscape_context_menu(tool)
+        })
+
+        require_js('/js/controls/placement', function(){
+          cytoscape_placement(tool)
+        })
+
+        require_js('/js/controls/save', function(){
+          cytoscape_save(tool)
+        })
+
+
+        ///////////////////////////////////
+        //{{{ NETWORK INIT
+
+        tool.cytoscape_tool('draw');
+
+        //////////////////////////////////////////////////////////////////
+        //{{{ Controls
+
+        $('.cytoscape_tool .database_edges input[type=submit]').click(function(){
+          var form =$(this).parents('form').first()
+          var inputs = form.find('.input.database.multiple')
+          var databases = $.map(inputs.find('input[type=checkbox]:checked'), function(e){
+            return $(e).attr('name').match(/\[(.*)\]/)[1];
+          })
+
+          tool.cytoscape_tool('set_edges', databases)
+          tool.cytoscape_tool('draw');
+
+          return false;
+        })
+
+        $('.cytoscape_tool .database_neighbours input[type=submit]').click(function(){
+          var databases = $.map($(this).parents('form').first().find('.input.database').find('input[type=checkbox]:checked'), function(e){
+            return $(e).attr('name').match(/\[(.*)\]/)[1];
+          })
+          var option = $(this).closest('form').find('select').find('option:selected');
+          var database = option.attr('value')
+
+          tool.cytoscape_tool('add_neighbours', database)
+          tool.cytoscape_tool('draw');
+
+          return false;
+        })
+
+
+        $('.cytoscape_tool .add_gene_list input[type=submit]').click(function(){
+          var option = $(this).closest('form').find('select.favourite_lists').find('option:selected');
+          var type = option.attr('attr-entity_type')
+          var list_id = $(this).parents('form').first().find('select').val();
+          var list = list_entities(type, list_id);
+          var info = list_info(type, list_id);
+
+          tool.cytoscape_tool('add_entities', type, list)
+          tool.cytoscape_tool('draw');
+
+          return false;
+        })
+
+        $('.cytoscape_tool .select_gene_list input[type=submit]').click(function(){
+          var option = $(this).closest('form').find('select.favourite_lists').find('option:selected');
+          var type = option.attr('attr-entity_type')
+          var list_id = $(this).parents('form').first().find('select').val();
+          var list = list_entities(type, list_id);
+
+          tool.cytoscape_tool('select_entities', list)
+
+          return false;
+        })
+
+        $('.cytoscape_tool .maps input[type=submit]').click(function(){
+          var form = $(this).closest('form')
+
+
+          var map_id = form.first().find('div.input.map select').val();
+          var field = form.first().find('div.input.field input').val();
+          var map_content = form.first().find('div.input.map_tsv textarea').val();
+          var option = form.first().find('div.input.map option:selected');
+          var type = option.attr('attr-entity_type')
+          var column = form.first().find('div.input.map select').find('option:selected').attr('attr-column');
+          var aesthetic = form.first().find('div.input.aesthetic select').val();
+
+          var map;
+
+          if (map_id == 'textarea'){
+            map_content = "#: :type=:single#:sep=/\\s/#:identifiers=Hsa/jan2013\n" + map_content
+            rbbt_job('TSVWorkflow', 'to_json', {tsv: map_content}, function(data){
+              var map = JSON.parse(data)
+              tool.cytoscape_tool('aesthetic', 'nodes', aesthetic, map, field)
+              tool.cytoscape_tool('draw')
+            })
+          }else{
+            entity_map(type, column, map_id, function(map){
+              tool.cytoscape_tool('aesthetic', 'nodes', aesthetic, map, field)
+              tool.cytoscape_tool('draw')
+            });
+          }
+
+          return false;
+        })
+      })
+    })
