@@ -11,6 +11,7 @@ Rbbt.claim Rbbt.www.views.public.js.cytoscape.find(:lib), :proc do |dir|
     TmpFile.with_file do |unzip_dir|
       FileUtils.mkdir_p unzip_dir unless File.exists? unzip_dir
       CMD.cmd("unzip -x '#{zip_file}' -d '#{unzip_dir}'")
+      FileUtils.mkdir_p dir unless File.exists? dir
       Dir.glob(File.join(unzip_dir, '*')).each do |file|
         FileUtils.mv(file, dir)
       end

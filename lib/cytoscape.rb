@@ -46,12 +46,11 @@ class Cytoscape
   def self.nodes(knowledge_base, entities)             
     nodes = []                             
     entities.collect{|type, list|                 
-      knowledge_base.annotate list, type                     
+      knowledge_base.annotate list, type
       list.each do |elem|                                   
         text = elem.respond_to?(:name) ? elem.name || elem : elem              
         nodes << {:id => elem, :label => text, :entity_type => type, :info => knowledge_base.entity_options_for(type), :url =>  Entity::REST.entity_url(elem)}
       end                                
-
     }                        
     nodes                           
   end                      
