@@ -1,5 +1,5 @@
-require_js('/js/cytoscape/src/AC_OETags.js');
-require_js('/js/cytoscape/src/cytoscapeweb.js');
+require_js('/js/cytoscape/js/src/AC_OETags.js');
+require_js('/js/cytoscape/js/src/cytoscapeweb.js');
 
 $.widget("rbbt.cytoscape_tool", {
 
