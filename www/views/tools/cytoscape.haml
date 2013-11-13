@@ -90,7 +90,7 @@
           - input :aesthetic, :select, "Aesthetic to map to", :opacity, :select_options => [:shape, :size, :color, :opacity, :borderWidth]
           - input :field, :string, "Attribute to map", 'id', :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
           - input :map, :select, "Select map to use", nil, :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
-          - input :map_tsv, :text, "Map", nil, :nofile => true
+          - input :map_tsv, :text, "Map", nil, :no_file => true
 
     %dt.next Help
     %dd.content
