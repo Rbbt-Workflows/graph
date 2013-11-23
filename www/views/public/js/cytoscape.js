@@ -24,11 +24,9 @@ $.widget("rbbt.cytoscape_tool", {
    nodes:{
 
     shape:{ 
-     defaultValue: "CIRCLE", passthroughMapper: { attrName: 'shape' } 
+     defaultValue: "RECTANGLE", passthroughMapper: { attrName: 'shape' } 
     },
-    //size:{ 
-    // defaultValue: 25, passthroughMapper: { attrName: 'size' } 
-    //},
+
     size:{ 
      defaultValue: 25,
      continuousMapper: {
@@ -54,6 +52,11 @@ $.widget("rbbt.cytoscape_tool", {
       maxValue: 10
      }
     },
+
+    borderColor: { 
+     defaultValue: "#555555", passthroughMapper: { attrName: 'borderColor' } 
+    },
+
     color: { 
      defaultValue: "#f5f5f5", passthroughMapper: { attrName: 'color' } 
     },

@@ -152,6 +152,7 @@
           namespace: '#{cytoscape.namespace}',
           entities: #{cytoscape.entities.to_json},
           network: #{cytoscape.network.to_json},
+          aesthetics: #{cytoscape.aesthetics.to_json},
 
           node_click: function(event){
             var target = event.target;

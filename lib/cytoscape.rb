@@ -5,6 +5,7 @@ class Cytoscape
     {:name => :url, :type => :string},     
     {:name => :opacity, :type => :number},   
     {:name => :borderWidth, :type => :number},    
+    {:name => :borderColor, :type => :string},    
     {:name => :size, :type => :number},                     
     {:name => :selected, :type => :boolean, :defValue => false},   
     {:name => :color, :type => :string},                 
@@ -21,7 +22,8 @@ class Cytoscape
     {:name => :weight, :type => :number},                     
   ]                        
 
-  attr_accessor :knowledge_base, :namespace, :entities                
+  attr_accessor :knowledge_base, :namespace, :entities, :aesthetics
+
   def initialize(knowledge_base, namespace = nil)                
     if namespace and namespace != knowledge_base.namespace                        
       @knowledge_base = knowledge_base.version(namespace)                    
@@ -29,6 +31,7 @@ class Cytoscape
       @knowledge_base = knowledge_base                                
     end                                                       
     @entities = IndiferentHash.setup({})                                         
+    @aesthetics = IndiferentHash.setup({})
     @namespace = namespace                                  
   end                                 
 
@@ -41,6 +44,12 @@ class Cytoscape
     @entities[type].concat good_entities                  
   end                        
 
+  def add_aesthetic(elem, aesthetic, type, feature, map)
+    @aesthetics[elem] ||= {}
+    @aesthetics[elem][aesthetic] ||= []
+    @aesthetics[elem][aesthetic].push(:type => type, :feature => feature, :map => map)
+  end
+
   #{{{ Network                         
 
   def self.nodes(knowledge_base, entities)             
@@ -49,7 +58,7 @@ class Cytoscape
       knowledge_base.annotate list, type
       list.each do |elem|                                   
         text = elem.respond_to?(:name) ? elem.name || elem : elem              
-        nodes << {:id => elem, :label => text, :entity_type => type, :info => knowledge_base.entity_options_for(type), :url =>  Entity::REST.entity_url(elem)}
+        nodes << {:id => elem, :label => text, :entity_type => type, :info => knowledge_base.entity_options_for(type), :url => Annotated === elem ? Entity::REST.entity_url(elem) : "#" }
       end                                
     }                        
     nodes                           
@@ -67,7 +76,6 @@ class Cytoscape
     {:dataSchema => {:nodes => NODE_SCHEMA, :edges => EDGE_SCHEMA}, :data => {:nodes => nodes(knowledge_base, entities), :edges => edges }}
   end
                     
-
   def network
     subset = {}
     knowledge_base.all_databases.each do |database|
@@ -75,9 +83,6 @@ class Cytoscape
     end
     Cytoscape.network(knowledge_base, entities, subset)
   end
-
-
-
 end
 
 
