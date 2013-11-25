@@ -8,7 +8,7 @@
     - c = Cytoscape.new user_kb(user), list.organism
     - c.add_entities  list.ensembl.compact
     - c.add_aesthetic("nodes", "shape", "mapper", "entity_type", {"Gene" => "CIRCLE", "Sample" => "HEXAGON"})
-    - c.add_aesthetic("nodes", "borderColor", "mapper", "entity_type", {"Sample" => "red"})
+    - c.add_aesthetic("nodes", "borderColor", "mapper", "entity_type", {"Sample" => "#D33682", "Gene" => '#B58900'})
     = tool :cytoscape, :cytoscape => c, :id => Misc.snake_case(list_id)
 
 

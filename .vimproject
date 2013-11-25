@@ -33,13 +33,6 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
    }
    entity_list=entity_list{
     Gene.haml
-    Gene=Gene{
-     sample_gene_network.haml
-     study_gene_network.haml
-    }
-   }
-   network_partials=network_partials{
-    sample_gene_network.haml
    }
   }
  }
