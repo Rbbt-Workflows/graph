@@ -279,16 +279,24 @@ $.widget("rbbt.cytoscape_tool", {
 
   //{{{ ASCETICS
   _elem_feature: function(elem, feature){
-   if(undefined === feature) return elem.data.id
-   if(typeof feature == 'string' ){
-     if (undefined === elem.data[feature] && undefined !== elem.data.info){
-      return JSON.parse(elem.data.info)[feature];
-     }else{       
-      return elem.data[feature];
-     }            
-   }
-   if(typeof feature == 'function' ) return feature(elem)
-   return undefined
+
+      if(undefined === feature){ 
+          return elem.data.id
+      }
+
+      if(typeof feature == 'string' ){
+          if (undefined !== elem.data[feature]){ 
+              return elem.data[feature]; 
+          }
+          if (undefined !== elem.data.info && undefined !== elem.data.info[feature]){ 
+              return elem.data.info[feature];
+          }
+          return undefined
+      }
+
+      if(typeof feature == 'function' ) return feature(elem)
+
+      return undefined
   },
 
   _map: function(elem_type, aesthetic, map, feature){
@@ -395,15 +403,60 @@ $.widget("rbbt.cytoscape_tool", {
     }})
   },
 
-  aesthetic: function(elem, aesthetic, map, feature){
-   var type = undefined;
-   if (undefined === feature){ feature = 'id' }
-   if (undefined !== this.options.visualStyle[elem][aesthetic].continuousMapper) type = 'continuous'
-   if (undefined !== this.options.visualStyle[elem][aesthetic].discreteMapper) type = 'discrete'
-   if (undefined !== this.options.visualStyle[elem][aesthetic].passthroughMapper) type = 'passthrough'
+  show_info_old: function(info){
 
-   this._add_aesthetic(elem, aesthetic, type, feature, map)
-   this.options.network = undefined
+      var table = $('<table>');
+      var hrow = $('<tr>');
+      table.append($('<thead>').append(hrow));
+
+
+      var rows = [];
+      var keys = [];
+      for (key in info){
+          keys.push(key);
+          hrow.append($('<th>').html(key));
+
+          var value = info[key];
+          var parts = value.split(";;");
+          for (i in parts){
+              var row = rows[i];
+              if (undefined === row){ row = (rows[i] = {}) }
+
+              row[key] = parts[i];
+          }
+      }
+
+      var body = $('<body>')
+      for (i in rows){
+          var row = rows[i];
+          var brow = $('<tr>');
+
+          table.append(brow)
+
+          for (j in keys){
+              var key = keys[j];
+
+              brow.append($('<td>').html(row[key]));
+          }
+      }
+      $('#modal').modal('show', table)
+
+  },
+
+  show_info: function(name, database, pair){
+      var url = ['/knowledge_base/info', name, database, pair].join("/");
+      $('#modal').modal('show_url', url)
+  },
+
+  aesthetic: function(elem, aesthetic, map, feature){
+      var type = undefined;
+      if (undefined === feature){ feature = 'id' }
+      if (undefined !== this.options.visualStyle[elem][aesthetic].continuousMapper) type = 'continuous'
+      if (undefined !== this.options.visualStyle[elem][aesthetic].discreteMapper) type = 'discrete'
+      if (undefined !== this.options.visualStyle[elem][aesthetic].passthroughMapper) type = 'passthrough'
+
+      this._add_aesthetic(elem, aesthetic, type, feature, map)
+      this.options.network = undefined
   },
 })
 

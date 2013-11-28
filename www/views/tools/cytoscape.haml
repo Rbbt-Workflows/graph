@@ -87,6 +87,7 @@
       .maps
         %h5 Map entity aesthetic
         = action_parameters nil, {:klass => ''}, :action => '#' do
+          - input :elem, :select, "Type of element", :nodes, :select_options => [:nodes, :edges]
           - input :aesthetic, :select, "Aesthetic to map to", :opacity, :select_options => [:shape, :size, :color, :opacity, :borderWidth]
           - input :field, :string, "Attribute to map", 'id', :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
           - input :map, :select, "Select map to use", nil, :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
@@ -156,6 +157,15 @@
 
           node_click: function(event){
             var target = event.target;
+            console.log(target.data.label);
+            for (var i in target.data){
+              var variable_name = i;
+              var variable_value = target.data[i];
+              console.log(variable_name + " = " + variable_value );
+            }
+
+            console.log(target.data.info)
+
             for (var i in target.data) {
               var variable_name = i;
               var variable_value = target.data[i];
@@ -170,21 +180,21 @@
 
           edge_click: function(event){
             var target = event.target;
+            console.log(target.data.source + ' --> ' + target.data.target);
             for (var i in target.data){
               var variable_name = i;
               var variable_value = target.data[i];
-              console.log( "event.target.data." + variable_name + " = " + variable_value );
+              console.log(variable_name + " = " + variable_value );
             }
 
-            info = JSON.parse(target.data.info)
+            console.log(target.data.info)
 
-            var dl = $('<dl>')
-            for (key in info){
-              var value = info[key]
-              dl.append($('<dt>').html(key))
-              dl.append($('<dd>').html(value))
-            }
-            $('#modal').modal('show', dl)
+
+            var database, name;
+            database = target.data.database.split("@")[0]
+            name = target.data.database.split("@")[1]
+            var pair = [target.data.source, target.data.target].join("~")
+            tool.cytoscape_tool('show_info', name, database, pair);
  
             return(false)
           }
@@ -267,6 +277,7 @@
           var form = $(this).closest('form')
 
 
+          var elem = form.first().find('div.input.elem select').val();
           var map_id = form.first().find('div.input.map select').val();
           var field = form.first().find('div.input.field input').val();
           var map_content = form.first().find('div.input.map_tsv textarea').val();
@@ -281,12 +292,12 @@
             map_content = "#: :type=:single#:sep=/\\s/#:identifiers=Hsa/jan2013\n" + map_content
             rbbt_job('TSVWorkflow', 'to_json', {tsv: map_content}, function(data){
               var map = JSON.parse(data)
-              tool.cytoscape_tool('aesthetic', 'nodes', aesthetic, map, field)
+              tool.cytoscape_tool('aesthetic', elem, aesthetic, map, field)
               tool.cytoscape_tool('draw')
             })
           }else{
             entity_map(type, column, map_id, function(map){
-              tool.cytoscape_tool('aesthetic', 'nodes', aesthetic, map, field)
+              tool.cytoscape_tool('aesthetic', elem, aesthetic, map, field)
               tool.cytoscape_tool('draw')
             });
           }
