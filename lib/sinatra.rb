@@ -1,5 +1,7 @@
 require 'rbbt/rest/knowledge_base'
 require 'rbbt/rest/web_tool'
+
+Workflow.require_workflow "Genomics"
 require 'genomics_kb'
 
 include Sinatra::RbbtToolHelper

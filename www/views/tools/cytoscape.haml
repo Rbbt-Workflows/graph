@@ -2,6 +2,7 @@
 - id = Misc.snake_case(id)
 - static = false unless defined? static and not static.nil?
 - knowledge_base = nil unless defined? knowledge_base and not knowledge_base.nil?
+- kb_name = 'user' unless defined? kb_name and not kb_name.nil?
 
 = link_css '/stylesheets/cytoscape'
 
@@ -33,19 +34,20 @@
                 .input.multiple.database
                   - databases.each do |database|
                     - name, *rest = database.split "@"
-                    %span.choice
+                    %span.cchoice
                       %label(for="database[#{database}]")=name
                       %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
-              %dl.rbbt_tabs.subtle(style="margin:1em")
-                - syndications.each do |synd, databases|
-                  %dt.next=synd
-                  %dd
-                    .input.database.multiple
-                      - databases.each do |database|
-                        - name, *rest = database.split "@"
-                        %span.choice
-                          %label(for="database[#{database}]")=name
-                          %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
+              - if syndications.any?
+                %dl.rbbt_tabs.subtle(style="margin:1em")
+                  - syndications.each do |synd, databases|
+                    %dt.next=synd
+                    %dd
+                      .input.database.multiple
+                        - databases.each do |database|
+                          - name, *rest = database.split "@"
+                          %span.choice
+                            %label(for="database[#{database}]")=name
+                            %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
 
               .input.submit
                 %input(type="submit")
@@ -149,7 +151,7 @@
 
         console.log("Loading cytoscape: " + cytoscape_id)
         var tool = $(cytoscape_id).cytoscape_tool({
-          knowledge_base: 'user',
+          knowledge_base: '#{kb_name}',
           namespace: '#{cytoscape.namespace}',
           entities: #{cytoscape.entities.to_json},
           network: #{cytoscape.network.to_json},
