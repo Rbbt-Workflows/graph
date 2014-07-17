@@ -26,8 +26,6 @@
         .database_edges
 
           %h5 Add edges between entities
-          -#= action_parameters nil, {:klass => ''}, :action => '#' do
-            -# input :database, :multiple, "Association database", nil, :choices => cytoscape.knowledge_base.all_databases
           .action_parameters
             %form.action_parameter_form
               - if databases.any?
@@ -62,8 +60,6 @@
 
         .database_neighbours
           %h5 Add neighbours of entities
-          -#= action_parameters nil, {:klass => ''}, :action => '#' do
-            -# input :database, :select, "Association database", nil, :select_options => cytoscape.knowledge_base.all_databases
           .action_parameters
             %form
               .input.select.database
@@ -149,7 +145,6 @@
       require_js('/js/cytoscape', function(){
         var cytoscape_id = '##{id}';
 
-        console.log("Loading cytoscape: " + cytoscape_id)
         var tool = $(cytoscape_id).cytoscape_tool({
           knowledge_base: '#{kb_name}',
           namespace: '#{cytoscape.namespace}',
@@ -159,14 +154,11 @@
 
           node_click: function(event){
             var target = event.target;
-            console.log(target.data.label);
             for (var i in target.data){
               var variable_name = i;
               var variable_value = target.data[i];
-              console.log(variable_name + " = " + variable_value );
             }
 
-            console.log(target.data.info)
 
             for (var i in target.data) {
               var variable_name = i;
@@ -182,14 +174,10 @@
 
           edge_click: function(event){
             var target = event.target;
-            console.log(target.data.source + ' --> ' + target.data.target);
             for (var i in target.data){
               var variable_name = i;
               var variable_value = target.data[i];
-              console.log(variable_name + " = " + variable_value );
             }
-
-            console.log(target.data.info)
 
 
             var database, name;

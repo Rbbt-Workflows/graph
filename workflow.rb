@@ -2,8 +2,48 @@ require 'cytoscape'
 require 'link'
 require 'rbbt/workflow'
 
+Workflow.require_workflow "Genomics"
+require 'genomics_kb'
+
 class Graph
   extend Workflow
+
+  input :matches, :tsv, "Match info"
+  task :edges  => :yaml do |matches|
+    source_type, target_type = matches.key_field
+    fields = matches.fields
+    matches = matches.to_list unless matches.type == :list
+    edges = []
+    matches.each do |match, values|
+      source, _sep, target = match.partition "~"
+      info = Hash[*fields.zip(values).flatten(1)]
+      edge = {:source => source, :target => target, :info => info}
+      edges << edge
+    end
+    edges
+
+    nodes
+  end
+
+  input :knowledge_base, :string, "Knowledge base code"
+  input :databases, :array, "Databases to add", :all
+  input :entities, :tsv, "Source entities"
+  dep  do |jobname, options|
+    entities = options[:entities]
+    knowledge_base = Kernel.const_get(options[:knowledge_base])
+    jobs  = []
+    options[:databases].each do |database|
+      matches = knowledge_base.subset(database, entities)
+      jobs << Graph.job(:edges, jobname, :matches => matches)
+    end
+    jobs
+  end
+  task :network => :yaml do
+    edges = deps.inject({}){|acc,e| acc = acc.merge(e)}
+    nodes = {}
+    entities.each do |type, entities|
+    end
+  end
 end
 
 if __FILE__ == $0
