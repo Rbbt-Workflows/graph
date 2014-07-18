@@ -22,11 +22,6 @@ Rbbt.claim Rbbt.www.views.public.js.cytoscape.find(:lib), :proc do |dir|
   nil
 end
 
-$default_organism = "Hsa/jan2013"
-
-$knowledge_base = Genomics.knowledge_base
-$knowledge_base.format["Gene"] = "Ensembl Gene ID"
-
 Rbbt.www.views.public.js.cytoscape.find(:lib).produce
 
 post '/knowledge_base/network' do

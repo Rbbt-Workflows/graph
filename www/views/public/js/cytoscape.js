@@ -107,6 +107,10 @@ $.widget("rbbt.cytoscape_tool", {
    return(this.options);
   },
 
+ add_context_menu_item: function(text, elem, func){
+  this.options.menu_items.push({text:text, elem:elem, func:func})
+ },
+
  _update_events: function(){
   var vis = this._vis()
   var tool = this;
@@ -167,6 +171,8 @@ $.widget("rbbt.cytoscape_tool", {
    return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
  },
 
+ //{{{ DRAW
+ 
  draw: function(){
    var tool = this;
 
@@ -181,10 +187,6 @@ $.widget("rbbt.cytoscape_tool", {
    }
  },
 
- set_points: function(points){
-   this.options.points = points
- },
-
  _update_network: function(){
    var config = {network: this.options.network, visualStyle: this.options.visualStyle}
 
@@ -197,14 +199,10 @@ $.widget("rbbt.cytoscape_tool", {
    this._update_events()
  },
 
-
  set_points: function(points){
    this.options.points = points
  },
 
- add_context_menu_item: function(text, elem, func){
- this.options.menu_items.push({text:text, elem:elem, func:func})
- },
 
  // ENTITY FUNCTIONS
 

@@ -10,7 +10,7 @@ class Graph
 
   input :matches, :tsv, "Match info"
   task :edges  => :yaml do |matches|
-    source_type, target_type = matches.key_field
+    source_type, _sep, target_type = matches.key_field.partition "~"
     fields = matches.fields
     matches = matches.to_list unless matches.type == :list
     edges = []
@@ -21,8 +21,6 @@ class Graph
       edges << edge
     end
     edges
-
-    nodes
   end
 
   input :knowledge_base, :string, "Knowledge base code"
@@ -30,19 +28,18 @@ class Graph
   input :entities, :tsv, "Source entities"
   dep  do |jobname, options|
     entities = options[:entities]
-    knowledge_base = Kernel.const_get(options[:knowledge_base])
+    entities = entities.to_flat
+    knowledge_base = Kernel.const_get(options[:knowledge_base]).knowledge_base
     jobs  = []
     options[:databases].each do |database|
+      puts [database, entities.inspect]
       matches = knowledge_base.subset(database, entities)
-      jobs << Graph.job(:edges, jobname, :matches => matches)
+      jobs << Graph.job(:edges, jobname, :matches => matches.tsv)
     end
     jobs
   end
   task :network => :yaml do
-    edges = deps.inject({}){|acc,e| acc = acc.merge(e)}
-    nodes = {}
-    entities.each do |type, entities|
-    end
+    dependencies.inject([]){|acc,e| acc.concat(e.load); acc}
   end
 end
 
