@@ -219,12 +219,16 @@ _get_neighbours: function(database, entities, complete){
   var data = $.extend({ }, 
   this.options.entity_options,
   {
-    entities: JSON.stringify(entities), 
+    //entities: JSON.stringify(entities), 
+    collection: JSON.stringify(entities), 
     namespace: this.options.namespace,
     _format: 'json'
   })
 
-  var url = ['/knowledge_base', this.options.knowledge_base, database, 'entity_collection_neighbours'].join("/")
+  console.log(data)
+
+  //var url = ['/knowledge_base', this.options.knowledge_base, database, 'entity_collection_neighbours'].join("/")
+  var url = ['/knowledge_base', this.options.knowledge_base, database, 'collection_neighbours'].join("/")
 
 return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
   },
@@ -253,6 +257,7 @@ return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
     }else{
       this.options.entities[type] = $.unique(
         this.options.entities[type].concat(entities))
+        this.options.entities[type] = $.unique(this.options.entities[type]);
       }
       this.options.network = undefined;
     },

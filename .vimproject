@@ -11,22 +11,13 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
    compass=compass{
     cytoscape.sass
    }
-   public=public{
-    js=js{
-     cytoscape=cytoscape{
-      src=src{
-       AC_OETags.js
-       cytoscapeweb.js
-       json2.js
-      }
-     }
-     controls=controls{
-      save.js
-      context_menu.js
-      placement.js
-     }
-     cytoscape.js
+   js=public/js{
+    controls=controls{
+     context_menu.js
+     placement.js
+     save.js
     }
+    cytoscape.js
    }
    tools=tools{
     cytoscape.haml

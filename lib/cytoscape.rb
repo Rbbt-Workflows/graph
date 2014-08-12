@@ -65,7 +65,7 @@ class Cytoscape
   end                      
 
   def self.edges(matches)
-    matches.collect{|match|
+    matches.uniq.collect{|match|
       {:database => match.database, :info => match.info, :source => match.source, :target => match.target}
     }
   end
