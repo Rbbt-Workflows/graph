@@ -72,7 +72,7 @@ class Cytoscape
 
   def self.network(knowledge_base, entities, subset)
     edges = []
-    subset.each do |database, matches| edges.concat self.edges(matches) end
+    subset.each do |database, matches| edges.concat self.edges(matches.uniq) end
     {:dataSchema => {:nodes => NODE_SCHEMA, :edges => EDGE_SCHEMA}, :data => {:nodes => nodes(knowledge_base, entities), :edges => edges }}
   end
                     
