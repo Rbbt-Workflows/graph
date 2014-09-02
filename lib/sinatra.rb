@@ -1,5 +1,6 @@
 require 'rbbt/rest/knowledge_base'
 require 'rbbt/rest/web_tool'
+require 'graph/cytoscape'
 
 Workflow.require_workflow "Genomics"
 require 'genomics_kb'
@@ -38,11 +39,15 @@ post '/knowledge_base/network' do
   entities = JSON.parse(entities)
 
   subset = {}
+  matches = []
   databases.each do |database|
-    subset[database] = knowledge_base.subset(database, entities)
+    matches.concat(knowledge_base.subset(database, entities).collect{|i| i})
   end
 
+  network = Cytoscape.network(matches)
   content_type "application/json"
-  network = Cytoscape.network(knowledge_base, entities, subset)
   halt 200, network.to_json
 end
+
+Workflow.require_workflow "Genomics"
+KnowledgeBaseRESTHelpers.add_syndication :genomics, Genomics.knowledge_base

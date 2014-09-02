@@ -1,4 +1,4 @@
-- id = (rand * 1000).to_i unless defined? id and not (id.nil? or id.empty?)
+- id = "rand" << (rand * 1000).to_i.to_s unless defined? id and not (id.nil? or id.empty?)
 - id = Misc.snake_case(id)
 - static = false unless defined? static and not static.nil?
 - knowledge_base = nil unless defined? knowledge_base and not knowledge_base.nil?
@@ -9,6 +9,7 @@
 - syndications = {}
 - databases = []
 - cytoscape.knowledge_base.all_databases.each do |database|
+  - database = database.to_s
   - name, synd = database.split("@")
   - if synd
     - syndications[synd] ||= []
@@ -180,11 +181,8 @@
             }
 
 
-            var database, name;
-            database = target.data.database.split("@")[0]
-            name = target.data.database.split("@")[1]
             var pair = [target.data.source, target.data.target].join("~")
-            tool.cytoscape_tool('show_info', name, database, pair);
+            tool.cytoscape_tool('show_info', "user", target.data.database, pair);
  
             return(false)
           }

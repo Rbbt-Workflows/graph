@@ -4,7 +4,10 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
  lib=lib {
   sinatra.rb
   link.rb
-  cytoscape.rb
+  graph.rb
+  graph=graph{
+   cytoscape.rb
+  }
  }
  www=www {
   views=views {
@@ -25,6 +28,5 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
    entity_list=entity_list{
     Gene.haml
    }
-  }
  }
 }

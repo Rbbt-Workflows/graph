@@ -310,7 +310,7 @@ return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
           if (undefined !== elem.data[feature]){ 
               return elem.data[feature]; 
           }
-          if (undefined !== elem.data.info && undefined !== elem.data.info[feature]){ 
+          if (null !== elem.data.info && undefined !== elem.data.info && undefined !== elem.data.info[feature]){ 
               return elem.data.info[feature];
           }
           return undefined
@@ -333,11 +333,23 @@ return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
     for (i in elems){
       var elem = elems[i];
       var code = this._elem_feature(elem, feature)
-      if (undefined !== map[code]){
-        value = map[code];
-        elem.data[aesthetic] = value
-        updated_elems.push(elem)
+      console.log(code)
+      if (typeof code == "string"){
+        $.each(code.split(";;"), function(i,n){
+          if (undefined !== map[n]){
+            value = map[n];
+            elem.data[aesthetic] = value
+            updated_elems.push(elem)
+          }
+        })
+      }else{
+        if (undefined !== map[code]){
+          value = map[code];
+          elem.data[aesthetic] = value
+          updated_elems.push(elem)
+        }
       }
+
     }
     vis.updateData(updated_elems);
   },

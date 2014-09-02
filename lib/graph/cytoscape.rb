@@ -1,3 +1,5 @@
+require 'graph'
+
 class Cytoscape      
   NODE_SCHEMA = [                        
     {:name => :entity_type, :type => :string},      
@@ -22,7 +24,7 @@ class Cytoscape
     {:name => :weight, :type => :number},                     
   ]                        
 
-  attr_accessor :knowledge_base, :namespace, :entities, :aesthetics
+  attr_accessor :knowledge_base, :namespace, :entities, :aesthetics, :associations
 
   def initialize(knowledge_base, namespace = nil)                
     if namespace and namespace != knowledge_base.namespace                        
@@ -30,14 +32,30 @@ class Cytoscape
     else                                        
       @knowledge_base = knowledge_base                                
     end                                                       
+
     @entities = IndiferentHash.setup({})                                         
     @aesthetics = IndiferentHash.setup({})
     @namespace = namespace                                  
   end                                 
 
+  def namespace=(namespace)
+    @knowledge_base = @knowledge_base.version(namespace) if @knowledge_base.namespace != namespace
+    @namespace = namespace
+  end
+
+  def add_associations(associations)
+    @associations ||= []
+    @associations.concat associations.collect{|i| i }
+    @associations.uniq
+    if AssociationItem === associations
+      add_entities associations.target, associations.target_entity_type
+      add_entities associations.source, associations.source_entity_type
+    end
+  end
+
   def add_entities(entities, type = nil)                                                   
     type = entities.base_entity.to_s if type.nil? and AnnotatedArray === entities
-    raise "No type specified and entities are not Entity, so could not guess" if type.nil? 
+    raise "No type specified and entities are not Annotated, so could not guess" if type.nil? 
     good_entities = knowledge_base.translate(entities, type).compact.uniq  
     @namespace ||= entities.organism if entities.respond_to? :organism       
     @entities[type] ||= []              
@@ -52,36 +70,17 @@ class Cytoscape
 
   #{{{ Network                         
 
-  def self.nodes(knowledge_base, entities)             
-    nodes = []                             
-    entities.collect{|type, list|                 
-      knowledge_base.annotate list, type
-      list.each do |elem|                                   
-        text = elem.respond_to?(:name) ? elem.name || elem : elem              
-        nodes << {:id => elem, :label => text, :entity_type => type, :info => knowledge_base.entity_options_for(type), :url => Annotated === elem ? Entity::REST.entity_url(elem) : "#" }
-      end                                
-    }                        
-    nodes                           
-  end                      
-
-  def self.edges(matches)
-    matches.uniq.collect{|match|
-      {:database => match.database, :info => match.info, :source => match.source, :target => match.target}
-    }
+  def self.network(associations)
+    {:dataSchema => {:nodes => NODE_SCHEMA, :edges => EDGE_SCHEMA}, :data => RbbtGraph.network(associations)}
   end
 
-  def self.network(knowledge_base, entities, subset)
-    edges = []
-    subset.each do |database, matches| edges.concat self.edges(matches.uniq) end
-    {:dataSchema => {:nodes => NODE_SCHEMA, :edges => EDGE_SCHEMA}, :data => {:nodes => nodes(knowledge_base, entities), :edges => edges }}
-  end
-                    
   def network
-    subset = {}
-    knowledge_base.all_databases.each do |database|
-      subset[database] = knowledge_base.subset(database, entities)
-    end
-    Cytoscape.network(knowledge_base, entities, subset)
+    @associations ||= begin
+                        knowledge_base.all_databases.collect do |database|
+                          knowledge_base.subset(database, entities).collect{|i| i }
+                        end.flatten.compact.uniq
+                      end
+    Cytoscape.network(@associations)
   end
 end
 
