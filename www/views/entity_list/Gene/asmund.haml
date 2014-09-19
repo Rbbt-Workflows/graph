@@ -1,0 +1,30 @@
+- Workflow.require_workflow "Asmund"
+- require 'asmund/knowledge_base'
+%h1 Test
+= graph do |kb|
+  - asmund_genes = list.ensembl.compact
+
+  - compound_assocs = Asmund.knowledge_base.subset "compound_associations", :all
+  - add_associations compound_assocs
+
+  - ppi_assocs = kb.subset "pina@genomics", :source => compound_assocs.target, :target => asmund_genes
+  - add_associations ppi_assocs
+
+  - tfacts_assocs = kb.subset "tfacts@genomics", :source => compound_assocs.target, :target => compound_assocs.target
+  - add_associations tfacts_assocs
+  - add_associations ["AK|SL~AK", "AK|SL~SL"]
+
+  - asmund_genes_color = {}
+  - asmund_genes.each do |gene| asmund_genes_color[gene] = 'green' end
+
+  - common_genes_color = {}
+  - (asmund_genes & compound_assocs.target).each do |gene| asmund_genes_color[gene] = 'red' end
+
+  - add_aesthetic("nodes", "shape", "mapper", "entity_type", {"Gene" => "CIRCLE", "Sample" => "HEXAGON"})
+  - add_aesthetic("nodes", "borderColor", "mapper", "entity_type", {"Sample" => "#D33682", "Gene" => '#B58900'})
+  - add_aesthetic("nodes", "color", "mapper", "id", asmund_genes_color)
+  - add_aesthetic("nodes", "color", "mapper", "id", common_genes_color)
+  - add_aesthetic("edges", "directed", "mapper", "database", {"tfacts@genomics" => true })
+  - add_aesthetic("edges", "color", "mapper", "database", {"pina@genomics" => "#0000FF", "tfacts@genomics" => "#00FFFF", "undefined" => "#FF00FF" })
+  - add_aesthetic("edges", "color", "mapper", "Effect", {"direct" => "#FF0000", "inverse" => '#00FF00'})
+

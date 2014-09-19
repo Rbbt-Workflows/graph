@@ -130,21 +130,22 @@
             field: entity_type
             map: use_textarea
             map_tsv:
-             GOTerm red
-             KeggPathway blue
-             Gene yellow
+              GOTerm red
+              KeggPathway blue
+              Gene yellow
              
-         Another example use is to gather the `mutation/protein size` column on
-         the `COSMIC Overview` analysis bellow, and map it to the `opacity`
-         aesthetic of the genes (using the `id` as `field`).
+        Another example use is to gather the `mutation/protein size` column on
+        the `COSMIC Overview` analysis bellow, and map it to the `opacity`
+        aesthetic of the genes (using the `id` as `field`).
 
   .window(id="#{id}_window")
 
 
   :javascript
     deffer(function(){
-      require_js('/js/cytoscape', function(){
-        var cytoscape_id = '##{id}';
+      var cytoscape_id = '##{id}';
+
+      require_js(['/js/cytoscape/js/src/AC_OETags.js', '/js/cytoscape/js/src/cytoscapeweb.js', '/js/cytoscape'], function(){
 
         var tool = $(cytoscape_id).cytoscape_tool({
           knowledge_base: '#{kb_name}',
@@ -155,16 +156,17 @@
 
           node_click: function(event){
             var target = event.target;
+
             for (var i in target.data){
               var variable_name = i;
               var variable_value = target.data[i];
             }
 
-
             for (var i in target.data) {
               var variable_name = i;
               var variable_value = target.data[i];
             }
+
             var url = target.data.url;
 
             $('#modal').modal('show_url', url, undefined, function(){

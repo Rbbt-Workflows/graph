@@ -1,0 +1,50 @@
+
+- source ||= nil
+- target ||= nil
+
+%h3 Explain
+
+= action_parameters do
+  - input :source, :string, "Source entity"
+  - input :target, :string, "Target entity"
+
+- if source and target
+  - load './lib/explain.rb'
+  -  Workflow.require_workflow "Genomics"
+  -  Workflow.require_workflow "Miller"
+  -  require 'rbbt/knowledge_base/Genomics'
+  -  require 'rbbt/knowledge_base/Miller'
+
+
+  - kb = user_kb(user)
+  - kb.format = {"Gene" => "Ensembl Gene ID"}
+  - kb.namespace = Miller.organism
+
+  - kb.syndicate(:genomics, Genomics.knowledge_base)
+  - kb.syndicate(:miller, Miller.knowledge_base)
+
+  - log :norm
+  - source = kb.normalize source
+  - target = kb.normalize target
+
+  - log :explain
+  - path_evidence = explain(kb, source, target, 3, 3)
+
+  - if path_evidence.nil?
+    No connection found
+  - else
+    - associations = []
+    %dl.tabs
+      - path_evidence.each do |path,evidences|
+        %dt.next= path * " => "
+        %dd.show
+          %dl
+            - evidences.each do |pair, list|
+              %dt= pair * " => "
+              %dd
+                - associations.concat list.to_a
+                - list.each do |item|
+                  %li [#{item.database}] #{item.name} -- #{Misc.fingerprint item.info}
+
+    = graph do
+      - add_associations associations

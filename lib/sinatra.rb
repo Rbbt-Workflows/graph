@@ -1,6 +1,6 @@
 require 'rbbt/rest/knowledge_base'
 require 'rbbt/rest/web_tool'
-require 'graph/cytoscape'
+require 'helpers/graph'
 
 Workflow.require_workflow "Genomics"
 require 'genomics_kb'
@@ -41,12 +41,17 @@ post '/knowledge_base/network' do
   subset = {}
   matches = []
   databases.each do |database|
-    matches.concat(knowledge_base.subset(database, entities).collect{|i| i})
+    items = knowledge_base.subset(database, entities).to_a
+    matches.concat(items)
   end
 
   network = Cytoscape.network(matches)
   content_type "application/json"
   halt 200, network.to_json
+end
+
+get '/explain' do
+  template_render('explain', @clean_params, "Explain", :cache_type => :sync)
 end
 
 Workflow.require_workflow "Genomics"

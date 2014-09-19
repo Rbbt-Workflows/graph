@@ -70,8 +70,29 @@ class Cytoscape
 
   #{{{ Network                         
 
-  def self.network(associations)
-    {:dataSchema => {:nodes => NODE_SCHEMA, :edges => EDGE_SCHEMA}, :data => RbbtGraph.network(associations)}
+  def self.network(associations, entities = {}, knowledge_base = nil)
+    nodes = {}
+    case entities
+    when Hash
+      entities.each do |type,elems|
+        elems.each do |elem|
+          info = RbbtGraph.node_info elem, type, knowledge_base
+          nodes[Annotated.purge(elem)] = info 
+        end
+      end
+    when Array
+      entities.each do |elem|
+        info = RbbtGraph.node_info elem, nil, knowledge_base
+        nodes[Annotated.purge(elem)] = info 
+      end
+    end
+    data = RbbtGraph.network(associations)
+    nodes.each do |elem, info|
+      inc = data[:nodes].include?(elem) and data[:nodes][elem].include?(:entity_type) and not info.include?(:entity_type)
+      data[:nodes][elem] = info unless inc
+    end
+    data[:nodes] = data[:nodes].collect{|elem,i| Misc.add_defaults i, :id => elem}
+    {:dataSchema => {:nodes => NODE_SCHEMA, :edges => EDGE_SCHEMA}, :data => data}
   end
 
   def network
@@ -80,7 +101,7 @@ class Cytoscape
                           knowledge_base.subset(database, entities).collect{|i| i }
                         end.flatten.compact.uniq
                       end
-    Cytoscape.network(@associations)
+    Cytoscape.network(@associations, entities, knowledge_base)
   end
 end
 
