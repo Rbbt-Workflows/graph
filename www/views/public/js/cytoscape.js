@@ -192,7 +192,6 @@ $.widget("rbbt.cytoscape_tool", {
             config.layout = {name:"Preset", options:{fitToScreen: true, points: points}}
         }
 
-        console.log(this._vis())
         this._vis().draw(config)
         this._update_events()
     },

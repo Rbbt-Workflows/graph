@@ -2,8 +2,9 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
  workflow.rb
  workflow.md
  lib=lib {
-  explain.rb
   sinatra.rb
+
+  explain.rb
   helpers=helpers{
    graph.rb
   }
@@ -17,6 +18,8 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
  www=www {
   views=views {
    explain.haml
+   test.haml
+   associations.haml
    compass=compass{
     cytoscape.sass
    }
@@ -34,7 +37,6 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
    entity_list=entity_list{
     Gene.haml
     Gene=Gene{
-     Asmund.haml
     }
    }
  }

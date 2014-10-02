@@ -54,5 +54,13 @@ get '/explain' do
   template_render('explain', @clean_params, "Explain", :cache_type => :sync)
 end
 
+get '/associations' do
+  template_render('associations', @clean_params, "Explain", :cache_type => :sync)
+end
+
+get '/test' do
+  template_render('test', @clean_params, "Explain", :cache_type => :sync)
+end
+
 Workflow.require_workflow "Genomics"
 KnowledgeBaseRESTHelpers.add_syndication :genomics, Genomics.knowledge_base
