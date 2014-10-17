@@ -264,8 +264,8 @@ $.widget("rbbt.cytoscape_tool", {
             var entities = info[type]
             tool.add_entities(type, entities)
           }
-          this.options.network = undefined;
-          this.draw()
+          tool.options.network = undefined;
+          tool.draw()
         })
     },
 

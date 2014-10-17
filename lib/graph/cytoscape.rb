@@ -58,8 +58,8 @@ class Cytoscape
     raise "No type specified and entities are not Annotated, so could not guess" if type.nil? 
     good_entities = knowledge_base.translate(entities, type).compact.uniq  
     @namespace ||= entities.organism if entities.respond_to? :organism       
-    @entities[type] ||= []              
-    @entities[type].concat good_entities                  
+    @entities[type] ||= []
+    @entities[type].concat good_entities.to_a
   end                        
 
   def add_aesthetic(elem, aesthetic, type, feature, map)

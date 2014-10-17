@@ -23,6 +23,42 @@ function cytoscape_context_menu(tool){
     tool.cytoscape_tool('draw');
   });
 
+  tool.cytoscape_tool('add_context_menu_item', "Remove leafs", "none", function (evt) {
+    var vis = tool.cytoscape_tool('vis');
+    var nodes = vis.nodes();
+    var edges = vis.edges();
+
+    var removed_nodes = [];
+    var node_counts = {};
+
+    $.each(nodes, function(i,n){
+      node_counts[n.data.id] = 0
+    })
+    
+    $.each(edges, function(i,e){
+      console.log(e)
+      if (node_counts[e.data.target] === undefined) node_counts[e.data.target] = 0
+      if (node_counts[e.data.source] === undefined) node_counts[e.data.source] = 0
+      node_counts[e.data.target] = node_counts[e.data.target] + 1
+      node_counts[e.data.source] = node_counts[e.data.source] + 1
+    })
+    console.log(node_counts)
+    for (node in node_counts){
+      if (node_counts[node] < 2){
+        removed_nodes.push(node)
+      }
+    }
+    console.log(removed_nodes)
+
+    $.map(removed_nodes, function(node){
+      var entity_type = undefined;
+      $.each(nodes, function(i,n){ if (n.data.id == node) entity_type = n.data.entity_type})
+      console.log(entity_type, node)
+      tool.cytoscape_tool('remove_entities', entity_type, [node])
+    })
+    tool.cytoscape_tool('draw');
+  });
+
   tool.cytoscape_tool('add_context_menu_item', "Log info", "nodes", function (evt) {
     var vis = tool.cytoscape_tool('vis');
     var node = evt.target;
