@@ -36,24 +36,20 @@ function cytoscape_context_menu(tool){
     })
     
     $.each(edges, function(i,e){
-      console.log(e)
       if (node_counts[e.data.target] === undefined) node_counts[e.data.target] = 0
       if (node_counts[e.data.source] === undefined) node_counts[e.data.source] = 0
       node_counts[e.data.target] = node_counts[e.data.target] + 1
       node_counts[e.data.source] = node_counts[e.data.source] + 1
     })
-    console.log(node_counts)
     for (node in node_counts){
       if (node_counts[node] < 2){
         removed_nodes.push(node)
       }
     }
-    console.log(removed_nodes)
 
     $.map(removed_nodes, function(node){
       var entity_type = undefined;
       $.each(nodes, function(i,n){ if (n.data.id == node) entity_type = n.data.entity_type})
-      console.log(entity_type, node)
       tool.cytoscape_tool('remove_entities', entity_type, [node])
     })
     tool.cytoscape_tool('draw');
@@ -67,7 +63,15 @@ function cytoscape_context_menu(tool){
     for (var i in node.data) {
       var variable_name = i;
       var variable_value = node.data[i];
-      console.log( "event.target.data." + variable_name + " = " + variable_value );
+      if (variable_name == info){
+       for (var j in variable_value) {
+        var info_variable_name = i;
+        var info_variable_value = node.data[i];
+        console.log( "  event.target.data.info" + info_variable_name + " = " + info_variable_value );
+       }
+      }else{
+       console.log( "event.target.data." + variable_name + " = " + variable_value );
+      }
     }
 
   });
