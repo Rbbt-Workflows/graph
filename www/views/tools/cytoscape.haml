@@ -64,6 +64,7 @@
           .action_parameters
             %form
               .input.select.database
+                %label knowledgebase
                 %select(type="All" name="database")
                   - databases.each do |database|
                     - name, *rest = database.split "@"
@@ -78,11 +79,6 @@
 
     %dt.next Aesthetics
     %dd.content
-      .select_gene_list
-        %h5 Highlight entities from a list
-        = action_parameters nil, {:klass => ''}, :action => '#' do
-          - input :entities, :select, "Genes to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
-
       .maps
         %h5 Map entity aesthetic
         = action_parameters nil, {:klass => ''}, :action => '#' do
@@ -92,10 +88,15 @@
           - input :map, :select, "Select map to use", nil, :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
           - input :map_tsv, :text, "Map", nil, :no_file => true
 
+      .select_gene_list
+        %h5 Highlight entities from a list
+        = action_parameters nil, {:klass => ''}, :action => '#' do
+          - input :entities, :select, "Genes to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
+
     %dt.next Help
     %dd.content
 
-      :markdown
+      :documentation
 
         ### Edges
         
