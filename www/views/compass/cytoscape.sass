@@ -1,13 +1,25 @@
+@import 'screen_sizes'
+@import 'elements/tool'
+
+dd > select
+  @media #{$only-large}
+    width: 300px
+
+ul.controls, ul.highlight
+  width: auto
+  li
+    display: inline-block
+
+div.sequence_tool
+  &>span
+    overflow: auto
+    display: inline-block
 
 .cytoscape_tool
-  &:after
-    content: ""
-    clear:both
-  .window
-    clear: both
-    height: 700px
-    padding: 0
-    border: 1px solid black
-
-  dd.content
-    background: rgba(230,230,230,0.6)
+  +tool
+  width: 100%
+  .window 
+    padding-top: 0
+    padding-bottom: 0
+    & > embed
+      height: calc(100% - #{2 * $gutter})

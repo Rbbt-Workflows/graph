@@ -17,9 +17,9 @@
   - else
     - databases << database
 
-.cytoscape_tool(id=id)
+.cytoscape_tool.fixable(id=id)
 
-  %dl.rbbt_menu
+  %dl.tool_menu.dropdown_menu
     - if not static
 
       %dt.next Edges
@@ -139,160 +139,158 @@
         the `COSMIC Overview` analysis bellow, and map it to the `opacity`
         aesthetic of the genes (using the `id` as `field`).
 
-  .window(id="#{id}_window")
+  .window.fixed_size(id="#{id}_window")
 
 
-  :javascript
-    deffer(function(){
-      var cytoscape_id = '##{id}';
+  :deferjs
+    var cytoscape_id = '##{id}';
 
-      require_js(['/js/cytoscape/js/src/AC_OETags.js', '/js/cytoscape/js/src/cytoscapeweb.js', '/js/cytoscape'], function(){
+    require_js(['/js/cytoscape/js/src/AC_OETags.js', '/js/cytoscape/js/src/cytoscapeweb.js', '/js/cytoscape'], function(){
 
-        var tool = $(cytoscape_id).cytoscape_tool({
-          knowledge_base: '#{kb_name}',
-          namespace: '#{cytoscape.namespace}',
-          entities: #{cytoscape.entities.to_json},
-          network: #{cytoscape.network.to_json},
-          aesthetics: #{cytoscape.aesthetics.to_json},
+      var tool = $(cytoscape_id).cytoscape_tool({
+        knowledge_base: '#{kb_name}',
+        namespace: '#{cytoscape.namespace}',
+        entities: #{cytoscape.entities.to_json},
+        network: #{cytoscape.network.to_json},
+        aesthetics: #{cytoscape.aesthetics.to_json},
 
-          node_click: function(event){
-            var target = event.target;
+        node_click: function(event){
+          var target = event.target;
 
-            for (var i in target.data){
-              var variable_name = i;
-              var variable_value = target.data[i];
-            }
-
-            for (var i in target.data) {
-              var variable_name = i;
-              var variable_value = target.data[i];
-            }
-
-            var url = target.data.url;
-
-            $('#modal').modal('show_url', url, undefined, function(){
-              $('#modal').find(' > .header > .title').attr('entity', target.data.id).attr('type', target.data.entity_type)
-            })
-            return(false)
-          },
-
-          edge_click: function(event){
-            var target = event.target;
-            for (var i in target.data){
-              var variable_name = i;
-              var variable_value = target.data[i];
-            }
-
-            var pair = [target.data.source, target.data.target].join("~")
-            tool.cytoscape_tool('show_info', "user", target.data.database, pair);
- 
-            return(false)
+          for (var i in target.data){
+            var variable_name = i;
+            var variable_value = target.data[i];
           }
 
-        });
+          for (var i in target.data) {
+            var variable_name = i;
+            var variable_value = target.data[i];
+          }
 
-        require_js('/js/controls/context_menu', function(){
-          cytoscape_context_menu(tool)
+          var url = target.data.url;
+
+          $('#modal').modal('show_url', url, undefined, function(){
+            $('#modal').find(' > .header > .title').attr('entity', target.data.id).attr('type', target.data.entity_type)
+          })
+          return(false)
+        },
+
+        edge_click: function(event){
+          var target = event.target;
+          for (var i in target.data){
+            var variable_name = i;
+            var variable_value = target.data[i];
+          }
+
+          var pair = [target.data.source, target.data.target].join("~")
+          tool.cytoscape_tool('show_info', "user", target.data.database, pair);
+
+          return(false)
+        }
+
+      });
+
+      require_js('/js/controls/context_menu', function(){
+        cytoscape_context_menu(tool)
+      })
+
+      require_js('/js/controls/placement', function(){
+        cytoscape_placement(tool)
+      })
+
+      require_js('/js/controls/save', function(){
+        cytoscape_save(tool)
+      })
+
+
+      ///////////////////////////////////
+      //{{{ NETWORK INIT
+
+      tool.cytoscape_tool('draw');
+
+      //////////////////////////////////////////////////////////////////
+      //{{{ Controls
+
+      $('.cytoscape_tool .database_edges input[type=submit]').click(function(){
+        var form =$(this).parents('form').first()
+        var inputs = form.find('.input.database.multiple')
+        var databases = $.map(inputs.find('input[type=checkbox]:checked'), function(e){
+          return $(e).attr('name').match(/\[(.*)\]/)[1];
         })
 
-        require_js('/js/controls/placement', function(){
-          cytoscape_placement(tool)
-        })
-
-        require_js('/js/controls/save', function(){
-          cytoscape_save(tool)
-        })
-
-
-        ///////////////////////////////////
-        //{{{ NETWORK INIT
-
+        tool.cytoscape_tool('set_edges', databases)
         tool.cytoscape_tool('draw');
 
-        //////////////////////////////////////////////////////////////////
-        //{{{ Controls
+        return false;
+      })
 
-        $('.cytoscape_tool .database_edges input[type=submit]').click(function(){
-          var form =$(this).parents('form').first()
-          var inputs = form.find('.input.database.multiple')
-          var databases = $.map(inputs.find('input[type=checkbox]:checked'), function(e){
-            return $(e).attr('name').match(/\[(.*)\]/)[1];
+      $('.cytoscape_tool .database_neighbours input[type=submit]').click(function(){
+        var databases = $.map($(this).parents('form').first().find('.input.database').find('input[type=checkbox]:checked'), function(e){
+          return $(e).attr('name').match(/\[(.*)\]/)[1];
+        })
+        var option = $(this).closest('form').find('select').find('option:selected');
+        var database = option.attr('value')
+
+        tool.cytoscape_tool('add_neighbours', database)
+        tool.cytoscape_tool('draw');
+
+        return false;
+      })
+
+
+      $('.cytoscape_tool .add_gene_list input[type=submit]').click(function(){
+        var option = $(this).closest('form').find('select.favourite_lists').find('option:selected');
+        var type = option.attr('attr-entity_type')
+        var list_id = $(this).parents('form').first().find('select').val();
+        var list = list_entities(type, list_id);
+        var info = list_info(type, list_id);
+
+        tool.cytoscape_tool('add_entities', type, list)
+        tool.cytoscape_tool('draw');
+
+        return false;
+      })
+
+      $('.cytoscape_tool .select_gene_list input[type=submit]').click(function(){
+        var option = $(this).closest('form').find('select.favourite_lists').find('option:selected');
+        var type = option.attr('attr-entity_type')
+        var list_id = $(this).parents('form').first().find('select').val();
+        var list = list_entities(type, list_id);
+
+        tool.cytoscape_tool('select_entities', list)
+
+        return false;
+      })
+
+      $('.cytoscape_tool .maps input[type=submit]').click(function(){
+        var form = $(this).closest('form')
+
+
+        var elem = form.first().find('div.input.elem select').val();
+        var map_id = form.first().find('div.input.map select').val();
+        var field = form.first().find('div.input.field input').val();
+        var map_content = form.first().find('div.input.map_tsv textarea').val();
+        var option = form.first().find('div.input.map option:selected');
+        var type = option.attr('attr-entity_type')
+        var column = form.first().find('div.input.map select').find('option:selected').attr('attr-column');
+        var aesthetic = form.first().find('div.input.aesthetic select').val();
+
+        var map;
+
+        if (map_id == 'textarea'){
+          map_content = "#: :type=:single#:sep=/\\s/#:identifiers=Hsa/jan2013\n" + map_content
+          rbbt_job('TSVWorkflow', 'to_json', {tsv: map_content}, function(data){
+            var map = JSON.parse(data)
+            tool.cytoscape_tool('aesthetic', elem, aesthetic, map, field)
+            tool.cytoscape_tool('draw')
           })
+        }else{
+          entity_map(type, column, map_id, function(map){
+            tool.cytoscape_tool('aesthetic', elem, aesthetic, map, field)
+            tool.cytoscape_tool('draw')
+          });
+        }
 
-          tool.cytoscape_tool('set_edges', databases)
-          tool.cytoscape_tool('draw');
-
-          return false;
-        })
-
-        $('.cytoscape_tool .database_neighbours input[type=submit]').click(function(){
-          var databases = $.map($(this).parents('form').first().find('.input.database').find('input[type=checkbox]:checked'), function(e){
-            return $(e).attr('name').match(/\[(.*)\]/)[1];
-          })
-          var option = $(this).closest('form').find('select').find('option:selected');
-          var database = option.attr('value')
-
-          tool.cytoscape_tool('add_neighbours', database)
-          tool.cytoscape_tool('draw');
-
-          return false;
-        })
-
-
-        $('.cytoscape_tool .add_gene_list input[type=submit]').click(function(){
-          var option = $(this).closest('form').find('select.favourite_lists').find('option:selected');
-          var type = option.attr('attr-entity_type')
-          var list_id = $(this).parents('form').first().find('select').val();
-          var list = list_entities(type, list_id);
-          var info = list_info(type, list_id);
-
-          tool.cytoscape_tool('add_entities', type, list)
-          tool.cytoscape_tool('draw');
-
-          return false;
-        })
-
-        $('.cytoscape_tool .select_gene_list input[type=submit]').click(function(){
-          var option = $(this).closest('form').find('select.favourite_lists').find('option:selected');
-          var type = option.attr('attr-entity_type')
-          var list_id = $(this).parents('form').first().find('select').val();
-          var list = list_entities(type, list_id);
-
-          tool.cytoscape_tool('select_entities', list)
-
-          return false;
-        })
-
-        $('.cytoscape_tool .maps input[type=submit]').click(function(){
-          var form = $(this).closest('form')
-
-
-          var elem = form.first().find('div.input.elem select').val();
-          var map_id = form.first().find('div.input.map select').val();
-          var field = form.first().find('div.input.field input').val();
-          var map_content = form.first().find('div.input.map_tsv textarea').val();
-          var option = form.first().find('div.input.map option:selected');
-          var type = option.attr('attr-entity_type')
-          var column = form.first().find('div.input.map select').find('option:selected').attr('attr-column');
-          var aesthetic = form.first().find('div.input.aesthetic select').val();
-
-          var map;
-
-          if (map_id == 'textarea'){
-            map_content = "#: :type=:single#:sep=/\\s/#:identifiers=Hsa/jan2013\n" + map_content
-            rbbt_job('TSVWorkflow', 'to_json', {tsv: map_content}, function(data){
-              var map = JSON.parse(data)
-              tool.cytoscape_tool('aesthetic', elem, aesthetic, map, field)
-              tool.cytoscape_tool('draw')
-            })
-          }else{
-            entity_map(type, column, map_id, function(map){
-              tool.cytoscape_tool('aesthetic', elem, aesthetic, map, field)
-              tool.cytoscape_tool('draw')
-            });
-          }
-
-          return false;
-        })
+        return false;
       })
     })
