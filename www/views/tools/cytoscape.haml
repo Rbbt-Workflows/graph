@@ -272,7 +272,7 @@
         var map_content = form.first().find('div.input.map_tsv textarea').val();
         var option = form.first().find('div.input.map option:selected');
         var type = option.attr('attr-entity_type')
-        var column = form.first().find('div.input.map select').find('option:selected').attr('attr-column');
+        var column = option.attr('attr-column');
         var aesthetic = form.first().find('div.input.aesthetic select').val();
 
         var map;

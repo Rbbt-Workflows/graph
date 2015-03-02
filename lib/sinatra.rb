@@ -3,7 +3,7 @@ require 'rbbt/rest/web_tool'
 require 'helpers/graph'
 
 Workflow.require_workflow "Genomics"
-require 'genomics_kb'
+require 'rbbt/knowledge_base/Genomics'
 
 require 'sassy-buttons'
 

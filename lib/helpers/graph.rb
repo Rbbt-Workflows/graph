@@ -1,4 +1,5 @@
 require 'graph/cytoscape'
+require 'rbbt/rest/web_tool'
 
 module RbbtRESTHelpers
 
