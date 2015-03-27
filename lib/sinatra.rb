@@ -5,8 +5,6 @@ require 'helpers/graph'
 Workflow.require_workflow "Genomics"
 require 'rbbt/knowledge_base/Genomics'
 
-require 'sassy-buttons'
-
 include Sinatra::RbbtToolHelper
 
 Rbbt.claim Rbbt.www.views.public.js.cytoscape.find(:lib), :proc do |dir|
