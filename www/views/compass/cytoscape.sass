@@ -1,24 +1,23 @@
-@import 'screen_sizes'
-@import 'elements/tool'
 
-dd > select
-  @media #{$only-large}
-    width: 300px
-
-ul.controls, ul.highlight
-  width: auto
-  li
-    display: inline-block
-
-div.sequence_tool
-  &>span
-    overflow: auto
-    display: inline-block
+//dd > select
+//  @media #{$only-large}
+//    width: 300px
+//
+//ul.controls, ul.highlight
+//  width: auto
+//  li
+//    display: inline-block
+//
+//div.sequence_tool
+//  &>span
+//    overflow: auto
+//    display: inline-block
 
 .cytoscape_tool
   +tool
   width: 100%
   .window 
+    height: 700px
     padding: 0
     & > embed
       height: 100%

@@ -17,6 +17,10 @@
   - else
     - databases << database
 
+:sass
+  .cytoscape_tool .window
+    height: 700px
+
 .cytoscape_tool.fixable(id=id)
 
   %dl.tool_menu.dropdown_menu
@@ -139,7 +143,7 @@
         the `COSMIC Overview` analysis bellow, and map it to the `opacity`
         aesthetic of the genes (using the `id` as `field`).
 
-  .window.fixed_size(id="#{id}_window")
+  .window(style='height:700px').fixed_size(id="#{id}_window")
 
 
   :deferjs
