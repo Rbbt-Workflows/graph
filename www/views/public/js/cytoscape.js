@@ -428,53 +428,57 @@ $.widget("rbbt.cytoscape_tool", {
 
         var url = '/entity_list/' + type + '/' + list_name
         $.ajax({url: url, cache: false, method:'POST', data:{entities: entities.join("|"), annotations: JSON.stringify(annotations)}, success: function(){
-            $('#modal').modal('show_url', url)
+         //$('#modal').modal('show_url', url)
+         rbbt.modal.controller.show_url(url)
+           
+
         }})
     },
 
-    show_info_old: function(info){
+    //show_info_old: function(info){
 
-        var table = $('<table>');
-        var hrow = $('<tr>');
-        table.append($('<thead>').append(hrow));
+    //    var table = $('<table>');
+    //    var hrow = $('<tr>');
+    //    table.append($('<thead>').append(hrow));
 
 
-        var rows = [];
-        var keys = [];
-        for (key in info){
-            keys.push(key);
-            hrow.append($('<th>').html(key));
+    //    var rows = [];
+    //    var keys = [];
+    //    for (key in info){
+    //        keys.push(key);
+    //        hrow.append($('<th>').html(key));
 
-            var value = info[key];
-            var parts = value.split(";;");
-            for (i in parts){
-                var row = rows[i];
-                if (undefined === row){ row = (rows[i] = {}) }
+    //        var value = info[key];
+    //        var parts = value.split(";;");
+    //        for (i in parts){
+    //            var row = rows[i];
+    //            if (undefined === row){ row = (rows[i] = {}) }
 
-                row[key] = parts[i];
-            }
-        }
+    //            row[key] = parts[i];
+    //        }
+    //    }
 
-        var body = $('<body>')
-        for (i in rows){
-            var row = rows[i];
-            var brow = $('<tr>');
+    //    var body = $('<body>')
+    //    for (i in rows){
+    //        var row = rows[i];
+    //        var brow = $('<tr>');
 
-            table.append(brow)
+    //        table.append(brow)
 
-            for (j in keys){
-                var key = keys[j];
+    //        for (j in keys){
+    //            var key = keys[j];
 
-                brow.append($('<td>').html(row[key]));
-            }
-        }
-        $('#modal').modal('show', table)
+    //            brow.append($('<td>').html(row[key]));
+    //        }
+    //    }
+    //    $('#modal').modal('show', table)
 
-    },
+    //},
 
     show_info: function(name, database, pair){
         var url = ['/knowledge_base/info', name, database, pair].join("/");
-        $('#modal').modal('show_url', url)
+        rbbt.modal.controller.show_url(url)
+        //$('#modal').modal('show_url', url)
     },
 
     aesthetic: function(elem, aesthetic, map, feature){
