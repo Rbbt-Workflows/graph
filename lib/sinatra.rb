@@ -8,7 +8,8 @@ require 'rbbt/knowledge_base/Genomics'
 include Sinatra::RbbtToolHelper
 
 Rbbt.claim Rbbt.www.views.public.js.cytoscape.find(:lib), :proc do |dir|
-  url = "http://cytoscapeweb.cytoscape.org/file/lib/cytoscapeweb_v1.0.3.zip"
+  #url = "http://cytoscapeweb.cytoscape.org/file/lib/cytoscapeweb_v1.0.3.zip"
+  url = "http://cytoscapeweb.cytoscape.org/file/lib/cytoscapeweb_v0.8.zip"
   TmpFile.with_file(nil, true, :extension => 'zip') do |zip_file|
     Open.write(zip_file, Open.read(url, :mode => 'rb', :noz => true), :mode => 'wb')
     TmpFile.with_file do |unzip_dir|
