@@ -268,17 +268,17 @@
       })
 
       $('.cytoscape_tool .maps input[type=submit]').click(function(){
-        var form = $(this).closest('form')
+        var form = $(this).closest('form').first()
 
-
-        var elem = form.first().find('div.input.elem select').val();
-        var map_id = form.first().find('div.input.map select').val();
-        var field = form.first().find('div.input.field input').val();
-        var map_content = form.first().find('div.input.map_tsv textarea').val();
-        var option = form.first().find('div.input.map option:selected');
+        var elem = form.find('div.field.elem select').val();
+        var map_id = form.find('div.field.map select').val();
+        var field = form.find('div.field.field input').val();
+        var map_content = form.find('div.field.map_tsv textarea').val();
+        var option = form.find('div.field.map option:selected');
         var type = option.attr('attr-entity_type')
-        var column = form.first().find('div.input.map select').find('option:selected').attr('attr-column');
-        var aesthetic = form.first().find('div.input.aesthetic select').val();
+        var column = form.find('div.field.map select').find('option:selected').attr('attr-column');
+        var aesthetic = form.find('div.field.aesthetic select').val();
+
 
         var map;
 
