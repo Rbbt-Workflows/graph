@@ -38,9 +38,11 @@ function cytoscape_save(tool){
       for (i in types){ select.append($('<option>').val(types[i]).html(types[i]))}
       var dialog = $('<form>').append(select).append($('<input>').attr('type', 'submit'))
 
-      $('#modal').modal('ask', dialog, "Select entity type", function(){
-        var type = $(this).find('select option:selected').val()
-        $('#modal').modal('close')
+      rbbt.modal.controller.show(dialog.html(), 'Select entity type to list')
+      $('#modal').find('input[type=submit]').click(function(){
+        console.log('submit')
+        var type = $(this).prev('select').find('option:selected').val()
+        console.log(type)
         tool.cytoscape_tool('list_selected', type, selected)
         return false;
       });
