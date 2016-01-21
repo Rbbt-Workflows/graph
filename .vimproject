@@ -18,7 +18,6 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
  www=www {
   views=views {
    explain.haml
-   test.haml
    associations.haml
    compass=compass{
     cytoscape.sass
