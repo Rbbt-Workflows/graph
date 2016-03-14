@@ -149,7 +149,7 @@
   :deferjs
     var cytoscape_id = '##{id}';
 
-    require_js(['/js/cytoscape/js/src/AC_OETags.js', '/js/cytoscape/js/src/cytoscapeweb.js', '/js/cytoscape'], function(){
+    require_js(['/js/cytoscape/js/src/AC_OETags.js', '/js/cytoscape/js/src/cytoscapeweb.js','/js/cytoscape'], function(){
 
       $('.preload').removeClass('preload')
 
@@ -194,6 +194,7 @@
 
       });
 
+      console.log(tool.network)
       require_js('/js/controls/context_menu', function(){
         cytoscape_context_menu(tool)
       })
@@ -205,6 +206,7 @@
       require_js('/js/controls/save', function(){
         cytoscape_save(tool)
       })
+        console.log(#{cytoscape.network.to_json})
 
 
       ///////////////////////////////////
