@@ -35,11 +35,11 @@ $.widget("rbbt.cytoscape_tool", {
                 },
 
                 size:{ 
-                    defaultValue: 25,
+                    defaultValue: 35,
                     continuousMapper: {
                         attrName: 'size',
-                        minValue: 30,
-                        maxValue: 90,
+                        minValue: 25,
+                        maxValue: 45,
                     }
                 },
 
@@ -76,11 +76,11 @@ $.widget("rbbt.cytoscape_tool", {
                 },
 
                 width:{ 
-                    defaultValue: 3,
+                    defaultValue: 5,
                     continuousMapper: {
                         attrName: 'width',
                         minValue: 1,
-                        maxValue: 10
+                        maxValue: 15
                     }
                 },
                 opacity:{ 
@@ -147,6 +147,7 @@ $.widget("rbbt.cytoscape_tool", {
         this.element.find('.window');
         var div_id = this.element.find('.window').attr('id')
         this.options.idToken = div_id;
+        console.log(div_id)
         var vis = this.options.vis = new org.cytoscapeweb.Visualization(div_id, this.options);
         this.options.init = false
 
@@ -433,7 +434,11 @@ $.widget("rbbt.cytoscape_tool", {
     },
 
     show_info: function(name, database, pair){
+        var dbinfo = rbbt.knowledge_base.parse_db(database)
+        name = dbinfo[0]
+        database = dbinfo[1]
         var url = ['/knowledge_base/info', name, database, pair].join("/");
+        url = url + '?step_path=' + rbbt.step_path()
         rbbt.modal.controller.show_url(url)
     },
 
