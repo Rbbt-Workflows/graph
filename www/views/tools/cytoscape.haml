@@ -1,8 +1,12 @@
+- require 'rbbt/rest/common/tabs'
 - id = "rand" << (rand * 1000).to_i.to_s unless defined? id and not (id.nil? or id.empty?)
 - id = Misc.snake_case(id)
 - static = false unless defined? static and not static.nil?
 - knowledge_base = nil unless defined? knowledge_base and not knowledge_base.nil?
 - kb_name = 'user' unless defined? kb_name and not kb_name.nil?
+
+- no_header = nil unless defined? no_header
+- no_header = false if no_header.nil?
 
 = link_css '/stylesheets/cytoscape'
 
@@ -24,125 +28,120 @@
     height: 700px
 .cytoscape_tool.fixable.preload(id=id)
 
-  .controls.ui.top.attached.tabular.menu
-    .ui.item(data-tab='Close') 
-      %i.icon.close
-    .ui.item(data-tab='Edges') Edges
-    .ui.item(data-tab='Entities') Entities
-    .ui.item(data-tab='Aesthetics') Aesthetics
-    .ui.item(data-tab='Help') Help
-  .ui.tab.bottom.attached.very.basic.segment.content(data-tab='Close')
-  .ui.tab.bottom.attached.segment.content(data-tab='Edges')
-    .database_edges
+  - if not no_header
+    = tabs  do |tab|
+      - tab.add Misc.html_tag('i', nil, :class => 'icon close'), 'close'
+      - tab.add "Edges" do
+        .database_edges
 
-      %h5 Add edges between entities
-      .action_parameters
-        %form.action_parameter_form
-          - if databases.any?
-            .input.multiple.database
-              - databases.each do |database|
-                - name, *rest = database.split "@"
-                %span.cchoice
-                  %label(for="database[#{database}]")=name
-                  %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
-          - if syndications.any?
-            %dl.rbbt_tabs.subtle(style="margin:1em")
-              - syndications.each do |synd, databases|
-                %dt.next=synd
-                %dd
-                  .input.database.multiple
+          %h5 Add edges between entities
+          .action_parameters
+            %form.action_parameter_form
+              - if databases.any?
+                .input.multiple.database
+                  - databases.each do |database|
+                    - name, *rest = database.split "@"
+                    %span.cchoice
+                      %label(for="database[#{database}]")=name
+                      %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
+              - if syndications.any?
+                %dl.rbbt_tabs.subtle(style="margin:1em")
+                  - syndications.each do |synd, databases|
+                    %dt.next=synd
+                    %dd
+                      .input.database.multiple
+                        - databases.each do |database|
+                          - name, *rest = database.split "@"
+                          %span.choice
+                            %label(for="database[#{database}]")=name
+                            %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
+
+              .input.submit
+                %input(type="submit")
+
+      - tab.add "Entities" do
+        .add_gene_list
+          %h5 Add entities from a list
+          = action_parameters nil, {:klass => ''}, :action => '#' do
+            - input :entities, :select, "Entities to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
+
+        .database_neighbours
+          %h5 Add neighbours of entities
+          .action_parameters.ui.raised.segment
+            %form.ui.form
+              .field.input.select.database
+                %label knowledgebase
+                %select(type="All" name="database")
+                  - databases.each do |database|
+                    - name, *rest = database.split "@"
+                    %option(value=database)=name
+                  - syndications.each do |synd, databases|
+                    %option(disabled=true)=synd
                     - databases.each do |database|
                       - name, *rest = database.split "@"
-                      %span.choice
-                        %label(for="database[#{database}]")=name
-                        %input(id="database[#{database}]" type="checkbox" value="true" name="database[#{database}]")
+                      %option(value=database)=name
+              .field.submit
+                %input.ui.submit.button(type="submit")
 
-          .input.submit
-            %input(type="submit")
+      - tab.add "Aesthetics" do
+        .maps
+          %h5 Map entity aesthetic
+          = action_parameters nil, {:klass => ''}, :action => '#' do
+            - input :elem, :select, "Type of element", :nodes, :select_options => [:nodes, :edges]
+            - input :aesthetic, :select, "Aesthetic to map to", :opacity, :select_options => [:shape, :size, :color, :opacity, :borderWidth]
+            - input :field, :string, "Attribute to map", 'id', :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
+            - input :map, :select, "Select map to use", nil, :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
+            - input :map_tsv, :text, "Map", nil, :no_file => true
 
-  .ui.tab.bottom.attached.segment.content(data-tab='Entities')
-    .add_gene_list
-      %h5 Add entities from a list
-      = action_parameters nil, {:klass => ''}, :action => '#' do
-        - input :entities, :select, "Entities to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
+        .select_gene_list
+          %h5 Highlight entities from a list
+          = action_parameters nil, {:klass => ''}, :action => '#' do
+            - input :entities, :select, "Genes to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
 
-    .database_neighbours
-      %h5 Add neighbours of entities
-      .action_parameters.ui.raised.segment
-        %form.ui.form
-          .field.input.select.database
-            %label knowledgebase
-            %select(type="All" name="database")
-              - databases.each do |database|
-                - name, *rest = database.split "@"
-                %option(value=database)=name
-              - syndications.each do |synd, databases|
-                %option(disabled=true)=synd
-                - databases.each do |database|
-                  - name, *rest = database.split "@"
-                  %option(value=database)=name
-          .field.submit
-            %input.ui.submit.button(type="submit")
+      - tab.add "Help" do
 
-  .ui.tab.bottom.attached.segment.content(data-tab='Aesthetics')
-    .maps
-      %h5 Map entity aesthetic
-      = action_parameters nil, {:klass => ''}, :action => '#' do
-        - input :elem, :select, "Type of element", :nodes, :select_options => [:nodes, :edges]
-        - input :aesthetic, :select, "Aesthetic to map to", :opacity, :select_options => [:shape, :size, :color, :opacity, :borderWidth]
-        - input :field, :string, "Attribute to map", 'id', :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
-        - input :map, :select, "Select map to use", nil, :select_options => {:textarea => "Use textarea"}, :html_options => {:class => 'favourite_maps', :type => 'All'}
-        - input :map_tsv, :text, "Map", nil, :no_file => true
+        :documentation
 
-    .select_gene_list
-      %h5 Highlight entities from a list
-      = action_parameters nil, {:klass => ''}, :action => '#' do
-        - input :entities, :select, "Genes to add", nil, :html_options => {:class => 'favourite_lists', :type => 'All'}
+          ### Edges
+          
+          You can connect your nodes using any of the databases in the `knowledgebase`.
+          This is configured in the `Edges` menu: check the databases you want to use, 
+          if none is selected (by default) all of them are used.
 
-  .ui.tab.bottom.attached.segment.content(data-tab='Help')
+          ### Entities
 
-    :documentation
+          The network comes preloaded with a list of entities (nodes), but you
+          can remove them or add new ones. To remove them use the context menu
+          (right-click over cytoscape window); you can remove one node, or the
+          selected list of nodes.
 
-      ### Edges
-      
-      You can connect your nodes using any of the databases in the `knowledgebase`.
-      This is configured in the `Edges` menu: check the databases you want to use, 
-      if none is selected (by default) all of them are used.
+          Adding nodes can be done using the `Entity` menu. You can add entities from
+          your `favourite` lists or add the neighbours of your entities using any of
+          the databases in the `knowledgebase`.
 
-      ### Entities
+          ### Aesthetics
 
-      The network comes preloaded with a list of entities (nodes), but you
-      can remove them or add new ones. To remove them use the context menu
-      (right-click over cytoscape window); you can remove one node, or the
-      selected list of nodes.
+          Use the `Aesthetics` menu to change how your network looks. This can
+          help represent different sources of information. For now it works only
+          on nodes.  You can change the value of different aesthetics, like
+          color, border width, size, shape, and opacity. You can `map` these
+          aesthetics to favourite `Entity Maps`, or use a custom mapping
+          in-place, as a space-separated TSV file (see example below). The
+          mappings can consider the identity of the node (type `id` in `field`;
+          default) or the type of node (type `entity_type` in `field`). For
+          instance:
 
-      Adding nodes can be done using the `Entity` menu. You can add entities from
-      your `favourite` lists or add the neighbours of your entities using any of
-      the databases in the `knowledgebase`.
-
-      ### Aesthetics
-
-      Use the `Aesthetics` menu to change how your network looks. This can
-      help represent different sources of information. For now it works only
-      on nodes.  You can change the value of different aesthetics, like
-      color, border width, size, shape, and opacity. You can `map` these
-      aesthetics to favourite `Entity Maps`, or use a custom mapping
-      in-place, as a space-separated TSV file (see example below). The
-      mappings can consider the identity of the node (type `id` in `field`;
-      default) or the type of node (type `entity_type` in `field`). For
-      instance:
-
-          aesthetic: color
-          field: entity_type
-          map: use_textarea
-          map_tsv:
-            GOTerm red
-            KeggPathway blue
-            Gene yellow
-            
-      Another example use is to gather the `mutation/protein size` column on
-      the `COSMIC Overview` analysis bellow, and map it to the `opacity`
-      aesthetic of the genes (using the `id` as `field`).
+              aesthetic: color
+              field: entity_type
+              map: use_textarea
+              map_tsv:
+                GOTerm red
+                KeggPathway blue
+                Gene yellow
+                
+          Another example use is to gather the `mutation/protein size` column on
+          the `COSMIC Overview` analysis bellow, and map it to the `opacity`
+          aesthetic of the genes (using the `id` as `field`).
 
   .window.fixed_size(id="#{id}_window")
 
@@ -300,7 +299,9 @@
         return false;
       })
     })
+
 :deferjs
+
   $('.item[data-tab]').tab()
   $('.item[data-tab=Close]').click(function(item){
     var tool = $(this).parents('.cytoscape_tool').first()

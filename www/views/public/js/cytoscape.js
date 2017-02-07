@@ -38,8 +38,8 @@ $.widget("rbbt.cytoscape_tool", {
                     defaultValue: 35,
                     continuousMapper: {
                         attrName: 'size',
-                        minValue: 25,
-                        maxValue: 45,
+                        minValue: 35,
+                        maxValue: 55,
                     }
                 },
 
@@ -195,6 +195,10 @@ $.widget("rbbt.cytoscape_tool", {
 
         this._vis().draw(config)
         this._update_events()
+    },
+
+    update_network: function(){
+      this._update_network()
     },
 
     set_points: function(points){
