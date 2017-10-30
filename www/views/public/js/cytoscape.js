@@ -5,8 +5,8 @@ $.widget("rbbt.cytoscape_tool", {
         //{{{ OPTIONS
 
         // where you have the Cytoscape Web SWF
-        swfPath: "/js-find/cytoscape/swf/CytoscapeWeb",
-        flashInstallerPath: "/js/cytoscape/swf/playerProductInstall",
+        swfPath: rbbt.url_add_script_name("/js-find/cytoscape/swf/CytoscapeWeb"),
+        flashInstallerPath: rbbt.url_add_script_name("/js/cytoscape/swf/playerProductInstall"),
 
         // Network
         knowledge_base: undefined,
