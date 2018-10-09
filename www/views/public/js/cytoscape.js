@@ -432,6 +432,7 @@ $.widget("rbbt.cytoscape_tool", {
         var list_name = 'Cytoscape selection'
 
         var url = '/entity_list/' + type + '/' + list_name
+        url = rbbt.url_add_script_name(url)
         $.ajax({url: url, cache: false, method:'POST', data:{entities: entities.join("|"), annotations: JSON.stringify(annotations)}, success: function(){
          rbbt.modal.controller.show_url(url)
         }})
