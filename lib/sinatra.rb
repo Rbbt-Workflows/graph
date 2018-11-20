@@ -34,7 +34,12 @@ post '/knowledge_base/network' do
   knowledge_base = get_knowledge_base(knowledge_base, namespace)
 
   databases = consume_parameter(:databases) || consume_parameter(:database)
-  databases = databases.nil? ? knowledge_base.all_databases : databases.split("|")
+  if (databases.nil? || databases == "[]" || databases == "")
+    knowledge_base.all_databases 
+  else
+    databases = JSON.parse(databases)
+    databases = databases.join("|") unless Array === databases
+  end
 
   entities = consume_parameter :entities
   entities = JSON.parse(entities)

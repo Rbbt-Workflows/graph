@@ -8,23 +8,21 @@
   - input :target, :string, "Target entity"
 
 - if source and target
-  - load './lib/explain.rb'
+  - require 'explain'
   -  Workflow.require_workflow "Genomics"
-  -  Workflow.require_workflow "Miller"
+  -#  Workflow.require_workflow "Miller"
   -  require 'rbbt/knowledge_base/Genomics'
-  -  require 'rbbt/knowledge_base/Miller'
 
 
   - kb = user_kb(user)
   - kb.format = {"Gene" => "Ensembl Gene ID"}
-  - kb.namespace = Miller.organism
+  - kb.namespace = Organism.deault_code("Hsa")
 
   - kb.syndicate(:genomics, Genomics.knowledge_base)
-  - kb.syndicate(:miller, Miller.knowledge_base)
 
   - log :norm
-  - source = kb.normalize source
-  - target = kb.normalize target
+  - source = kb.identify_source "pina@genomics", source
+  - target = kb.identify_target "pina@genomics", target
 
   - log :explain
   - path_evidence = explain(kb, source, target, 3, 3)

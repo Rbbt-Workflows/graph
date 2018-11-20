@@ -147,7 +147,6 @@ $.widget("rbbt.cytoscape_tool", {
         this.element.find('.window');
         var div_id = this.element.find('.window').attr('id')
         this.options.idToken = div_id;
-        console.log(div_id)
         var vis = this.options.vis = new org.cytoscapeweb.Visualization(div_id, this.options);
         this.options.init = false
 
@@ -158,15 +157,16 @@ $.widget("rbbt.cytoscape_tool", {
 
     _get_network: function(databases, complete){
         var url = '/knowledge_base/network'
+        url = rbbt.url_add_script_name(url)
         var data = $.extend({}, {
             knowledge_base: this.options.knowledge_base, 
-            entities: JSON.stringify(this.options.entities), 
+            entities: this.options.entities, 
             databases: this.options.databases,
             namespace: this.options.namespace,
             _format: 'cytoscape'
         });
 
-        return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
+        return rbbt.post(url, data, complete);
     },
 
     //{{{ DRAW
@@ -218,19 +218,19 @@ $.widget("rbbt.cytoscape_tool", {
     },
 
     _get_neighbours: function(database, entities, complete){
-        var data = $.extend({ }, 
-                            this.options.entity_options,
+        var data = $.extend({ }, this.options.entity_options,
                             {
-                                //entities: JSON.stringify(entities), 
                                 collection: JSON.stringify(entities), 
                                 namespace: this.options.namespace,
                                 _format: 'json'
                             })
 
-                            //var url = ['/knowledge_base', this.options.knowledge_base, database, 'entity_collection_neighbours'].join("/")
-                            var url = ['/knowledge_base', this.options.knowledge_base, database, 'collection_neighbours'].join("/");
+        //var url = ['/knowledge_base', this.options.knowledge_base, database, 'entity_collection_neighbours'].join("/")
+        var url = ['/knowledge_base', this.options.knowledge_base, database, 'collection_neighbours'].join("/");
 
-                            return get_ajax({method: 'POST', url: url, data: data, async: false}, complete);
+        url = rbbt.url_add_script_name(url)
+        var params = {method: 'POST', url: url, data: data, async: false}
+        return rbbt.post(url, data, complete);
     },
 
 
@@ -252,6 +252,7 @@ $.widget("rbbt.cytoscape_tool", {
     },
 
     add_entities: function(type, entities){
+        var tool = this
         if (undefined === this.options.entities[type]){
             this.options.entities[type] = $.unique(entities);
         }else{
@@ -259,22 +260,23 @@ $.widget("rbbt.cytoscape_tool", {
                 this.options.entities[type].concat(entities))
                 this.options.entities[type] = $.unique(this.options.entities[type]);
         }
-        this.options.network = undefined;
+        tool.options.network = undefined;
     },
 
     add_neighbours: function(database){
         var tool = this
-        this._get_neighbours(database, this.options.entities, function(info){
+        return this._get_neighbours(database, this.options.entities, function(info){
+          console.log(info)
           for (type in info){
             var entities = info[type]
             tool.add_entities(type, entities)
           }
           tool.options.network = undefined;
-          tool.draw()
         })
     },
 
     remove_entities: function(type, entities){
+        var tool = this
         this.options.network = undefined
         if (undefined !== this.options.entities[type]){
             var current_list = this.options.entities[type]
@@ -285,7 +287,7 @@ $.widget("rbbt.cytoscape_tool", {
                     new_list.push(entity)
                 }
             }
-            this.options.entities[type] = new_list
+            tool.options.entities[type] = new_list
         }
     },
 
@@ -413,7 +415,43 @@ $.widget("rbbt.cytoscape_tool", {
                     if(info.type === 'continuous'){
                         this._map_continuous(elem, aesthetic, info.map, info.feature)
                     }else{
+                       if (aesthetic == 'color'){
+                        var negative = false
+                        var color = false
+                        var values = []
+                        var keys = []
+                        forHash(info.map, function(e,v){
+                         if (parseFloat(v).toString() == v || parseFloat(v).toString() == i){
+                          if ( parseFloat(v) < 0){
+                           negative = true
+                          }
+                         }
+                         else{
+                          color = true
+                         }
+                         values.push(v)
+                         keys.push(e)
+                        })
+
+                        if (color){
+                         this._map(elem, aesthetic, info.map, info.feature)
+                        }else{
+                          var color_values
+                         if (negative) {
+                          color_values = get_sign_gradient(values, '#40324F', '#DDD', '#EABD5D')     
+                         }else{
+                          color_values = get_gradient(values, '#40324F', '#EABD5D')
+                         }
+
+                         var new_map = {}
+                         for (var i = 0; i < keys.length; i++){
+                          new_map[keys[i]] = color_values[i];
+                         }
+                         this._map(elem, aesthetic, new_map, info.feature)
+                        }
+                       }else{
                         this._map(elem, aesthetic, info.map, info.feature)
+                       }
                     }
                 }
             }
@@ -455,6 +493,6 @@ $.widget("rbbt.cytoscape_tool", {
                 if (undefined !== this.options.visualStyle[elem][aesthetic].passthroughMapper) type = 'passthrough'
 
                     this._add_aesthetic(elem, aesthetic, type, feature, map)
-                    this.options.network = undefined
+                    //this.options.network = undefined
     },
 });

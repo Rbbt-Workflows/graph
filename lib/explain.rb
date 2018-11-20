@@ -1,4 +1,4 @@
-require 'pqueue'
+#require 'pqueue'
 
 $scores = {}
 $adjacent = {}
