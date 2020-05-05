@@ -1,0 +1,99 @@
+- id = "rand" << (rand * 1000).to_i.to_s unless defined? id and not (id.nil? or id.empty?)
+- id = Misc.snake_case(id)
+
+:sass
+  .cytoscape_tool .window
+    height: 700px
+    background-color: white
+
+.cytoscape_tool.fixable(id=id)
+  .window.fixed_size(id="#{id}_window")
+
+:deferjs
+  var id = '#{id}'
+  var namespace = '#{cytoscape.namespace}';
+  var aesthetics = #{cytoscape.aesthetics.to_json};
+  var network = #{cytoscape.network.to_json};
+
+  var graph_window = $('#' + id + '_window');
+
+  function flatten_entities(list, type_key){
+    codes = {}
+    properties = {}
+    keys = []
+    forArray(list, function(info){
+      var type = info[type_key];
+      var id = info["id"];
+      if (undefined === codes[type]) codes[type] = []
+      if (undefined === properties[type]) properties[type] = []
+      codes[type].push(id)
+      forHash(info, function(k,v){ keys.push(k) })
+      properties[type].push(info)
+    })
+
+    keys = unique(keys)
+    //keys = remove_from_array(keys, 'id')
+    //keys = remove_from_array(keys, type_key)
+
+    code_properties = {}
+
+    forHash(properties, function(type, list){
+      code_properties[type] = {}
+      forArray(keys, function(k){
+        code_properties[type][k] = []
+      })
+      forArray(list, function(info){
+        forArray(keys, function(k){
+          code_properties[type][k].push(info[k])
+        })
+      })
+    })
+
+    return {codes: codes, properties: code_properties};
+  }
+
+  flat = flatten_entities(network.data.nodes, 'entity_type')
+
+  forArray(network.data.edges, function(e){e.id = [e.source, e.target].join("~")})
+
+  model = rbbt.graph_model();
+
+  forHash(flat.codes, function(type, list){
+    model.set_entities(list, type)
+  })
+
+  forHash(flat.properties, function(type, list){
+    forHash(list, function(name, values){
+      model.add_property(values, name, type)
+    })
+  })
+
+  flat = flatten_entities(network.data.edges, 'database')
+
+  forHash(flat.codes, function(type, list){
+    model.set_associations(list, type)
+  })
+
+  forHash(flat.properties, function(type, list){
+    forHash(list, function(name, values){
+      model.add_edge_property(values, name, type)
+    })
+  })
+
+  forHash(aesthetics["nodes"], function(aes, rules){
+    forArray(rules, function(rule){
+      model.add_aes_rule({aes: aes, mapper: rule.type, name: rule.feature, mapper_obj: rule.map})
+    })
+  })
+
+  forHash(aesthetics["edges"], function(aes, rules){
+    forArray(rules, function(rule){
+      model.add_edge_aes_rule({aes: aes, mapper: rule.type, name: rule.feature, mapper_obj: rule.map})
+    })
+  })
+
+  model.add_aes_rule({aes:'label', name: 'label'})
+  
+  cy = rbbt.plots.graph.view_cytoscapejs(model, graph_window)
+
+  rbbt.plots.graph[id] = [cy, model, graph_window]
