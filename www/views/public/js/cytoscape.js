@@ -171,6 +171,12 @@ $.widget("rbbt.cytoscape_tool", {
 
     //{{{ DRAW
 
+    svg: function(width, height){
+        var tool = this;
+       var svg = tool._vis().svg({height:1000, width:1000});
+       save_file(svg, 'network.svg', 'image/svg+xml')
+    },
+
     draw: function(){
         var tool = this;
 
