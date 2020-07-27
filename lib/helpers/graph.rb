@@ -16,7 +16,7 @@ module RbbtRESTHelpers
     aesthetics
   end
 
-  def graph(kb_dir = nil, namespace = Organism.default_code("Hsa"), &block)
+  def graph(kb_dir = nil, namespace = Organism.default_code("Hsa"), options = {}, &block)
     kb_dir ||= user_kb(user)
     kb = KnowledgeBase === kb_dir ? kb_dir : KnowledgeBase.new(kb_dir, namespace)
     c = Cytoscape.new kb, kb.namespace
@@ -26,6 +26,19 @@ module RbbtRESTHelpers
     end
 
     c.instance_exec kb, &block
-    tool :cytoscape, :cytoscape => c
+    tool :cytoscape, options.merge(:cytoscape => c)
+  end
+
+  def graph_js(kb_dir = nil, namespace = Organism.default_code("Hsa"), options = {}, &block)
+    kb_dir ||= user_kb(user)
+    kb = KnowledgeBase === kb_dir ? kb_dir : KnowledgeBase.new(kb_dir, namespace)
+    c = Cytoscape.new kb, kb.namespace
+
+    user_aesthetics(user).each do |aesthetic|
+      c.add_aesthetic *aesthetic
+    end
+
+    c.instance_exec kb, &block
+    tool :cytoscape_js, options.merge(:cytoscape => c)
   end
 end

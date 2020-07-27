@@ -35,7 +35,7 @@ post '/knowledge_base/network' do
 
   databases = consume_parameter(:databases) || consume_parameter(:database)
   if (databases.nil? || databases == "[]" || databases == "")
-    knowledge_base.all_databases 
+    databases = knowledge_base.all_databases 
   else
     databases = JSON.parse(databases)
     databases = databases.join("|") unless Array === databases

@@ -33,7 +33,7 @@ class RbbtGraph
     nodes = {}
     edges = []
 
-    associations.uniq.collect do |item|
+    associations.collect do |item|
       edges << edge_info(item)
       if AssociationItem === item
         knowledge_base = item.knowledge_base

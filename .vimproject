@@ -32,6 +32,7 @@ Graph=/$PWD filter="*.rb *.R *.js *.sass *.haml *.tsv" {
    }
    tools=tools{
     cytoscape.haml
+    cytoscape_js.haml
    }
    entity_list=entity_list{
     Gene.haml
