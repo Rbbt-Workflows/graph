@@ -55,6 +55,10 @@ function cytoscape_context_menu(tool){
     tool.cytoscape_tool('draw');
   });
 
+  tool.cytoscape_tool('add_context_menu_item', "Save SVG", "none", function (evt) {
+      var svg = tool.cytoscape_tool('svg', 1000, 1000);
+  });
+
   tool.cytoscape_tool('add_context_menu_item', "Log info", "nodes", function (evt) {
     var vis = tool.cytoscape_tool('vis');
     var node = evt.target;

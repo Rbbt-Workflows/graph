@@ -185,6 +185,12 @@ $.widget("rbbt.cytoscape_tool", {
         }
     },
 
+    svg: function(width, height){
+        var tool = this;
+        var svg = tool._vis().svg({height:1000, width:1000});
+        save_file(svg, 'network.svg', 'image/svg+xml');
+    },
+
     _update_network: function(){
         var config = {network: this.options.network, visualStyle: this.options.visualStyle}
 
@@ -421,16 +427,18 @@ $.widget("rbbt.cytoscape_tool", {
                         var values = []
                         var keys = []
                         forHash(info.map, function(e,v){
-                         if (parseFloat(v).toString() == v || parseFloat(v).toString() == i){
-                          if ( parseFloat(v) < 0){
-                           negative = true
+                         if (! e.includes('__tsv_hash')){
+                          if (parseFloat(v).toString() == v || parseFloat(v).toString() == i){
+                           if ( parseFloat(v) < 0){
+                            negative = true
+                           }
                           }
+                          else{
+                           color = true
+                          }
+                          values.push(v)
+                           keys.push(e)
                          }
-                         else{
-                          color = true
-                         }
-                         values.push(v)
-                         keys.push(e)
                         })
 
                         if (color){
