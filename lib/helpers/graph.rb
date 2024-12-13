@@ -41,4 +41,18 @@ module RbbtRESTHelpers
     c.instance_exec kb, &block
     tool :cytoscape_js, options.merge(:cytoscape => c)
   end
+
+  #def graph_d3(kb_dir = nil, namespace = Organism.default_code("Hsa"), options = {}, &block)
+  #  kb_dir ||= user_kb(user)
+  #  kb = KnowledgeBase === kb_dir ? kb_dir : KnowledgeBase.new(kb_dir, namespace)
+  #  c = Cytoscape.new kb, kb.namespace
+
+  #  user_aesthetics(user).each do |aesthetic|
+  #    c.add_aesthetic *aesthetic
+  #  end
+
+  #  c.instance_exec kb, &block
+  #  tool :d3, options.merge(:cytoscape => c)
+  #end
+
 end

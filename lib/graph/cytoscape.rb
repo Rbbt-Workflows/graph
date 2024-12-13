@@ -24,7 +24,7 @@ class Cytoscape
     {:name => :weight, :type => :number},                     
   ]                        
 
-  attr_accessor :knowledge_base, :namespace, :entities, :aesthetics, :associations
+  attr_accessor :knowledge_base, :namespace, :entities, :aesthetics, :properties, :associations
 
   def initialize(knowledge_base, namespace = nil)                
     if namespace and namespace != knowledge_base.namespace                        
@@ -35,6 +35,7 @@ class Cytoscape
 
     @entities = IndiferentHash.setup({})                                         
     @aesthetics = IndiferentHash.setup({})
+    @properties = IndiferentHash.setup({})
     @namespace = namespace                                  
   end                                 
 
@@ -67,6 +68,13 @@ class Cytoscape
     @aesthetics[elem][aesthetic] ||= []
     @aesthetics[elem][aesthetic].push(:type => type, :feature => feature, :map => map)
   end
+
+  def add_property(elem, property, type, feature, map)
+    @properties[elem] ||= {}
+    @properties[elem][property] ||= []
+    @properties[elem][property].push(:type => type, :feature => feature, :map => map)
+  end
+
 
   #{{{ Network                         
 

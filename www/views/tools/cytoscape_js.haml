@@ -13,14 +13,15 @@
   var id = '#{id}'
   var namespace = '#{cytoscape.namespace}';
   var aesthetics = #{cytoscape.aesthetics.to_json};
+  var properties = #{cytoscape.properties.to_json};
   var network = #{cytoscape.network.to_json};
 
   var graph_window = $('#' + id + '_window');
 
   function flatten_entities(list, type_key){
-    codes = {}
-    properties = {}
-    keys = []
+    var codes = {}
+    var properties = {}
+    var keys = []
     forArray(list, function(info){
       var type = info[type_key];
       var id = info["id"];
@@ -79,6 +80,19 @@
       model.add_edge_property(values, name, type)
     })
   })
+
+  forHash(properties["nodes"], function(property, rules){
+    forArray(rules, function(rule){
+      model.add_rule({name: property, map: rule.feature, mapper_obj: rule.map})
+    })
+  })
+
+  forHash(properties["edges"], function(property, rules){
+    forArray(rules, function(rule){
+      model.add_edge_rule({name: property, map: rule.feature, mapper_obj: rule.map})
+    })
+  })
+
 
   forHash(aesthetics["nodes"], function(aes, rules){
     forArray(rules, function(rule){
